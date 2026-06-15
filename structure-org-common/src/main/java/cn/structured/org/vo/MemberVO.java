@@ -45,12 +45,4 @@ public class MemberVO {
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 
-    @Schema(description = "创建人")
-    private Long createBy;
-
-    @Schema(description = "更新时间")
-    private LocalDateTime updateTime;
-
-    @Schema(description = "更新人")
-    private Long updateBy;
 }

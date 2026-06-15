@@ -13,9 +13,6 @@ import lombok.Data;
 @Schema(description = "成员申请查询对象")
 public class MemberRequestQuery {
 
-    @Schema(description = "组织ID")
-    private Long organizationId;
-
     @Schema(description = "用户ID")
     private Long userId;
 

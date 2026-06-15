@@ -13,7 +13,7 @@ public class OrganizationAssembler {
     private OrganizationAssembler() {
     }
 
-    public static OrganizationVO toVO(Organization organization) {
+    public static OrganizationVO assembler(Organization organization) {
         if (organization == null) {
             return null;
         }
@@ -35,16 +35,8 @@ public class OrganizationAssembler {
         return vo;
     }
 
-    public static List<OrganizationVO> toVOList(List<Organization> organizations) {
-        if (organizations == null) {
-            return Collections.emptyList();
-        }
-        return organizations.stream()
-                .map(OrganizationAssembler::toVO)
-                .collect(Collectors.toList());
-    }
 
-    public static Organization toEntity(OrganizationDTO dto) {
+    public static Organization assembler(OrganizationDTO dto) {
         if (dto == null) {
             return null;
         }
@@ -61,18 +53,4 @@ public class OrganizationAssembler {
         return organization;
     }
 
-    public static void updateEntity(OrganizationDTO dto, Organization organization) {
-        if (dto == null || organization == null) {
-            return;
-        }
-        organization.setName(dto.getName());
-        organization.setCode(dto.getCode());
-        organization.setLogo(dto.getLogo());
-        organization.setDescription(dto.getDescription());
-        organization.setIndustry(dto.getIndustry());
-        organization.setAddress(dto.getAddress());
-        organization.setContactPhone(dto.getContactPhone());
-        organization.setState(dto.getState());
-        organization.setType(dto.getType());
-    }
 }

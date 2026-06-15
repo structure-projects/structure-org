@@ -7,13 +7,14 @@ import cn.structured.org.dto.OrganizationDTO;
 import cn.structured.org.entity.Organization;
 import cn.structured.org.enums.OrgExceptionEnum;
 import cn.structured.org.exception.OrgException;
-import cn.structured.org.mapper.OrganizationMapper;
+import cn.structured.org.manager.IOrganizationManager;
 import cn.structured.org.query.OrganizationQuery;
 import cn.structured.org.service.IOrganizationService;
 import cn.structured.org.vo.OrganizationVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -26,32 +27,32 @@ import org.springframework.util.StringUtils;
  */
 @Slf4j
 @Service
-public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Organization> implements IOrganizationService {
+@AllArgsConstructor
+public class OrganizationServiceImpl implements IOrganizationService {
+
+    private final IOrganizationManager organizationManager;
 
     @Override
     public Long create(OrganizationDTO dto) {
         if (StringUtils.hasText(dto.getCode())) {
-            long count = count(new LambdaQueryWrapper<Organization>().eq(Organization::getCode, dto.getCode()));
+            long count = organizationManager.count(Wrappers.<Organization>lambdaQuery()
+                    .eq(Organization::getCode, dto.getCode()));
             if (count > 0) {
                 log.warn("组织编码已存在: {}", dto.getCode());
                 throw new OrgException(OrgExceptionEnum.ORGANIZATION_CODE_DUPLICATE);
             }
         }
-        Organization organization = OrganizationAssembler.toEntity(dto);
-        save(organization);
+        Organization organization = OrganizationAssembler.assembler(dto);
+        organizationManager.save(organization);
         log.info("创建组织成功, 组织ID: {}", organization.getId());
         return organization.getId();
     }
 
     @Override
     public void update(Long id, OrganizationDTO dto) {
-        Organization organization = super.getById(id);
-        if (organization == null) {
-            log.warn("组织不存在, 组织ID: {}", id);
-            throw new OrgException(OrgExceptionEnum.ORGANIZATION_NOT_FOUND);
-        }
+        Organization organization = organizationManager.getById(id);
         if (StringUtils.hasText(dto.getCode()) && !dto.getCode().equals(organization.getCode())) {
-            long count = count(new LambdaQueryWrapper<Organization>()
+            long count = organizationManager.count(Wrappers.<Organization>lambdaQuery()
                     .eq(Organization::getCode, dto.getCode())
                     .ne(Organization::getId, id));
             if (count > 0) {
@@ -59,31 +60,32 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
                 throw new OrgException(OrgExceptionEnum.ORGANIZATION_CODE_DUPLICATE);
             }
         }
-        OrganizationAssembler.updateEntity(dto, organization);
-        updateById(organization);
+        Organization updateOrganization = OrganizationAssembler.assembler(dto);
+        updateOrganization.setId(id);
+        organizationManager.updateById(updateOrganization);
         log.info("更新组织成功, 组织ID: {}", id);
     }
 
     @Override
     public void delete(Long id) {
-        Organization organization = super.getById(id);
+        Organization organization = organizationManager.getById(id);
         if (organization == null) {
             log.warn("组织不存在, 组织ID: {}", id);
             throw new OrgException(OrgExceptionEnum.ORGANIZATION_NOT_FOUND);
         }
-        removeById(id);
+        organizationManager.removeById(id);
         log.info("删除组织成功, 组织ID: {}", id);
     }
 
 
     @Override
     public OrganizationVO findById(Long id) {
-        Organization organization = super.getById(id);
+        Organization organization = organizationManager.getById(id);
         if (organization == null) {
             log.warn("组织不存在, 组织ID: {}", id);
             throw new OrgException(OrgExceptionEnum.ORGANIZATION_NOT_FOUND);
         }
-        return OrganizationAssembler.toVO(organization);
+        return OrganizationAssembler.assembler(organization);
     }
 
     @Override
@@ -106,10 +108,10 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
             wrapper.like(Organization::getIndustry, query.getIndustry());
         }
         wrapper.orderByDesc(Organization::getCreateTime);
-        Page<Organization> result = page(page, wrapper);
-        
+        Page<Organization> result = organizationManager.page(page, wrapper);
+
         ResPage<OrganizationVO> resPage = new ResPage<>();
-        resPage.setRecords(result.convert(OrganizationAssembler::toVO).getRecords());
+        resPage.setRecords(result.convert(OrganizationAssembler::assembler).getRecords());
         resPage.setTotal(result.getTotal());
         resPage.setCurrent(result.getCurrent());
         resPage.setSize(result.getSize());

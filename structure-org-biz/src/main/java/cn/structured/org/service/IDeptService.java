@@ -17,7 +17,7 @@ import java.util.List;
  * @author chuck
  * @since 2024-01-01
  */
-public interface IDeptService extends IService<Dept> {
+public interface IDeptService  {
 
     Long create(DeptDTO dto);
 

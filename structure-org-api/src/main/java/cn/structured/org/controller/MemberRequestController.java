@@ -4,6 +4,7 @@ import cn.structure.common.entity.ResResultVO;
 import cn.structure.common.utils.ResultUtilSimpleImpl;
 import cn.structure.common.vo.ReqPage;
 import cn.structure.common.vo.ResPage;
+import cn.structured.org.dto.MemberAuditDTO;
 import cn.structured.org.dto.MemberRequestDTO;
 import cn.structured.org.query.MemberRequestQuery;
 import cn.structured.org.service.IMemberRequestService;
@@ -38,12 +39,9 @@ public class MemberRequestController {
 
     @PutMapping("/{id}/audit")
     @Operation(summary = "审核申请")
-    public ResResultVO<MemberRequestVO> audit(
-            @Parameter(description = "申请ID") @PathVariable Long id,
-            @Parameter(description = "审核状态 2:通过 3:拒绝") @RequestParam Integer state,
-            @Parameter(description = "拒绝理由") @RequestParam(required = false) String rejectReason) {
-        memberRequestService.audit(id, state, rejectReason);
-        return ResultUtilSimpleImpl.success(memberRequestService.findById(id));
+    public ResResultVO<Void> audit(@RequestBody MemberAuditDTO auditDTO) {
+        memberRequestService.audit(auditDTO);
+        return ResultUtilSimpleImpl.success(null);
     }
 
     @GetMapping("/{id}")

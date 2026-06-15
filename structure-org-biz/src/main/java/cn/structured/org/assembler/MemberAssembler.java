@@ -14,11 +14,8 @@ public class MemberAssembler {
     private MemberAssembler() {
     }
 
-    public static MemberVO toVO(Member member) {
-        return toVO(member, null);
-    }
 
-    public static MemberVO toVO(Member member, Map<Long, String> deptNameMap) {
+    public static MemberVO assemble(Member member) {
         if (member == null) {
             return null;
         }
@@ -29,32 +26,12 @@ public class MemberAssembler {
         vo.setName(member.getName());
         vo.setSex(member.getSex());
         vo.setDeptId(member.getDeptId());
-        if (deptNameMap != null && member.getDeptId() != null) {
-            vo.setDeptName(deptNameMap.get(member.getDeptId()));
-        }
         vo.setState(member.getState());
         vo.setOrganizationId(member.getOrganizationId());
         vo.setCreateTime(member.getCreateTime());
-        vo.setCreateBy(member.getCreateBy());
-        vo.setUpdateTime(member.getUpdateTime());
-        vo.setUpdateBy(member.getUpdateBy());
         return vo;
     }
-
-    public static List<MemberVO> toVOList(List<Member> members) {
-        return toVOList(members, null);
-    }
-
-    public static List<MemberVO> toVOList(List<Member> members, Map<Long, String> deptNameMap) {
-        if (members == null) {
-            return Collections.emptyList();
-        }
-        return members.stream()
-                .map(member -> toVO(member, deptNameMap))
-                .collect(Collectors.toList());
-    }
-
-    public static Member toEntity(MemberDTO dto) {
+    public static Member assemble(MemberDTO dto) {
         if (dto == null) {
             return null;
         }
@@ -69,15 +46,4 @@ public class MemberAssembler {
         return member;
     }
 
-    public static void updateEntity(MemberDTO dto, Member member) {
-        if (dto == null || member == null) {
-            return;
-        }
-        member.setUserId(dto.getUserId());
-        member.setPhone(dto.getPhone());
-        member.setName(dto.getName());
-        member.setSex(dto.getSex());
-        member.setDeptId(dto.getDeptId());
-        member.setState(dto.getState());
-    }
 }

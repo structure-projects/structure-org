@@ -2,6 +2,7 @@ package cn.structured.org.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -19,7 +20,11 @@ public class DeptDTO {
     private String name;
 
     @Schema(description = "父节点id", defaultValue = "0")
+    @NotNull(message = "父部门ID不能为空")
     private Long parentId;
+
+    @Schema(description = "父节点id路径")
+    private String treePath;
 
     @Schema(description = "显示顺序", defaultValue = "0")
     private Integer sort;

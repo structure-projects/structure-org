@@ -75,9 +75,9 @@ public class DeptController {
         return ResultUtilSimpleImpl.success(deptService.options(organizationId));
     }
 
-    @GetMapping("/tree")
-    @Operation(summary = "获取部门树")
-    public ResResultVO<List<DeptVO>> tree(@Parameter(description = "组织ID") @RequestParam Long organizationId) {
+    @GetMapping("/list")
+    @Operation(summary = "部门列表")
+    public ResResultVO<List<DeptVO>> list(@Parameter(description = "组织ID") @RequestParam Long organizationId) {
         return ResultUtilSimpleImpl.success(deptService.tree(organizationId));
     }
 }
