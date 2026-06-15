@@ -40,19 +40,18 @@ public class OrganizationController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新组织")
-    public ResResultVO<OrganizationVO> update(
+    public ResResultVO<Void> update(
             @Parameter(description = "组织ID") @PathVariable Long id,
             @Valid @RequestBody OrganizationDTO dto) {
         organizationService.update(id, dto);
-        return ResultUtilSimpleImpl.success(organizationService.findById(id));
+        return ResultUtilSimpleImpl.success(null);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除组织")
-    public ResResultVO<OrganizationVO> delete(@Parameter(description = "组织ID") @PathVariable Long id) {
-        OrganizationVO vo = organizationService.findById(id);
+    public ResResultVO<Void> delete(@Parameter(description = "组织ID") @PathVariable Long id) {
         organizationService.delete(id);
-        return ResultUtilSimpleImpl.success(vo);
+        return ResultUtilSimpleImpl.success(null);
     }
 
     @GetMapping("/{id}")

@@ -40,11 +40,11 @@ public class MemberController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新成员")
-    public ResResultVO<MemberVO> update(
+    public ResResultVO<Void> update(
             @Parameter(description = "成员ID") @PathVariable Long id,
             @Valid @RequestBody MemberDTO dto) {
         memberService.update(id, dto);
-        return ResultUtilSimpleImpl.success(memberService.findById(id));
+        return ResultUtilSimpleImpl.success(null);
     }
 
     @DeleteMapping("/{id}")

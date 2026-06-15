@@ -41,19 +41,18 @@ public class DeptController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新部门")
-    public ResResultVO<DeptVO> update(
+    public ResResultVO<Void> update(
             @Parameter(description = "部门ID") @PathVariable Long id,
             @Valid @RequestBody DeptDTO dto) {
         deptService.update(id, dto);
-        return ResultUtilSimpleImpl.success(deptService.findById(id));
+        return ResultUtilSimpleImpl.success(null);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除部门")
-    public ResResultVO<DeptVO> delete(@Parameter(description = "部门ID") @PathVariable Long id) {
-        DeptVO vo = deptService.findById(id);
+    public ResResultVO<Void> delete(@Parameter(description = "部门ID") @PathVariable Long id) {
         deptService.delete(id);
-        return ResultUtilSimpleImpl.success(vo);
+        return ResultUtilSimpleImpl.success(null);
     }
 
 
