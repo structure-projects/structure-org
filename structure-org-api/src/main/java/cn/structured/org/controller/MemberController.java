@@ -54,13 +54,6 @@ public class MemberController {
         return ResultUtilSimpleImpl.success(null);
     }
 
-    @DeleteMapping("/batch")
-    @Operation(summary = "批量删除成员")
-    public ResResultVO<Boolean> deleteBatch(@Parameter(description = "成员ID列表") @RequestBody List<Long> ids) {
-        memberService.removeBatchByIds(ids);
-        return ResultUtilSimpleImpl.success(true);
-    }
-
     @GetMapping("/{id}")
     @Operation(summary = "获取成员详情")
     public ResResultVO<MemberVO> getById(@Parameter(description = "成员ID") @PathVariable Long id) {
