@@ -5,9 +5,6 @@ spring:
     active: dev
   application:
     name: org-server
-  config:
-    import:
-      - optional:nacos:${spring.application.name}.yaml?group=${spring.profiles.active}
   cloud:
     nacos:
       server-addr: ${NACOS_SERVER:nacos.structured.cn:8848}
@@ -28,6 +25,11 @@ spring:
         enabled: ${NACOS_CONFIG_ENABLE:false}
       username: ${NACOS_USERNAME:structure}
       password: ${NACOS_PASSWORD:structure}
+  config:
+    import:
+      - optional:nacos:${spring.application.name}?refreshEnabled=true
+
+
 management:
   endpoint:
     health:

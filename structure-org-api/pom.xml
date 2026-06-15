@@ -67,7 +67,7 @@
         </dependency>
         <dependency>
             <groupId>cn.structured</groupId>
-            <artifactId>structure-security-core</artifactId>
+            <artifactId>structure-security-oauth-resource-starter</artifactId>
             <version>1.1.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
