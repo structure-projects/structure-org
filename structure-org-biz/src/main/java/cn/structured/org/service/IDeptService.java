@@ -4,10 +4,8 @@ import cn.structure.common.vo.OptionVO;
 import cn.structure.common.vo.ReqPage;
 import cn.structure.common.vo.ResPage;
 import cn.structured.org.dto.DeptDTO;
-import cn.structured.org.entity.Dept;
 import cn.structured.org.query.DeptQuery;
 import cn.structured.org.vo.DeptVO;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 

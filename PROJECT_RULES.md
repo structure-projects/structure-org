@@ -3,111 +3,92 @@
 ## 📅 文档信息
 
 - **版本**: 1.0.0
-- **创建日期**: 2026-06-01
-- **最后更新**: 2026-06-01
+- **创建日期**: 2026-06-16
+- **最后更新**: 2026-06-16
 
-## 📁 目录结构规范
+## 📁 项目结构规范
 
-项目采用标准的分层架构，所有枚举、异常、转换器和常量都有明确的存放位置：
+### 整体架构
+
+项目采用标准的微服务分层架构，分为四个模块：
 
 ```
-cn.structured.portal/
-├── enums/          # 枚举定义（状态码、业务枚举等）
+structure-org/
+├── structure-org-api/        # 控制层（对外暴露REST API）
+├── structure-org-biz/        # 业务层（核心业务逻辑）
+├── structure-org-common/     # 公共层（DTO、VO、枚举、异常等）
+└── structure-org-dependencies/ # 依赖管理（统一版本控制）
+```
+
+### 模块职责说明
+
+| 模块 | 职责 | 包含包 |
+|-----|------|--------|
+| **structure-org-api** | 控制层，处理HTTP请求 | `controller/`, `OrgApplication.java` |
+| **structure-org-biz** | 业务逻辑层 | `service/`, `manager/`, `mapper/`, `entity/`, `assembler/`, `config/` |
+| **structure-org-common** | 公共组件 | `dto/`, `vo/`, `query/`, `enums/`, `exception/`, `constant/` |
+| **structure-org-dependencies** | Maven依赖管理 | `pom.xml` |
+
+### 包结构详解
+
+```
+cn.structured.org/
+├── controller/     # REST API控制层，处理请求和响应
+├── service/        # 业务服务层，定义业务接口和实现
+├── manager/        # 数据管理层，封装数据访问逻辑
+├── mapper/         # MyBatis数据访问层
+├── entity/         # 数据库实体类
+├── assembler/      # 对象转换器（Entity ↔ DTO/VO）
+├── dto/            # 数据传输对象（请求参数）
+├── vo/             # 视图对象（响应数据）
+├── query/          # 查询条件对象
+├── enums/          # 枚举定义（状态码、错误码等）
 ├── exception/      # 自定义业务异常
-├── assembler/      # 类型转换器（Entity ↔ DTO/VO）
 ├── constant/       # 常量定义
-├── controller/     # 控制层
-├── service/        # 服务层
-├── mapper/         # 数据访问层
-├── entity/         # 实体类
-├── dto/            # 数据传输对象
-├── vo/             # 视图对象
-└── common/        # 通用工具类
+└── config/         # 配置类
 ```
+
+---
 
 ## 1️⃣ 枚举规范 (enums/)
 
 ### 1.1 枚举存放位置
 
 ```
-cn.structured.*.enums
+cn.structured.org.enums
 ```
 
 ### 1.2 枚举使用场景
 
-- **业务状态码**：如订单状态、用户状态、站点状态等
+- **业务状态码**：如组织状态、部门状态、成员状态等
 - **错误码枚举**：定义业务错误的错误码和消息
-- **类型枚举**：如性别、角色类型、菜单类型等
+- **类型枚举**：如组织类型、申请类型等
 
-### 1.3 枚举定义示例
+### 1.3 枚举命名规范
 
-```java
-package cn.structured.portal.enums;
+| 类型 | 命名模式 | 示例 |
+|-----|---------|------|
+| 状态枚举 | `{业务}StateEnum` | `MemberStateEnum` |
+| 类型枚举 | `{业务}TypeEnum` | `OrganizationTypeEnum` |
+| 错误码枚举 | `{业务}ExceptionEnum` | `OrgExceptionEnum` |
 
-/**
- * 站点状态枚举
- *
- * @author System
- */
-public enum SiteStatusEnum {
-
-    ACTIVE("active", "激活"),
-    INACTIVE("inactive", "未激活"),
-    DELETED("deleted", "已删除");
-
-    private final String code;
-    private final String description;
-
-    SiteStatusEnum(String code, String description) {
-        this.code = code;
-        this.description = description;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public static SiteStatusEnum getByCode(String code) {
-        for (SiteStatusEnum status : values()) {
-            if (status.getCode().equals(code)) {
-                return status;
-            }
-        }
-        return null;
-    }
-}
-```
-
-### 1.4 错误码枚举示例
+### 1.4 枚举定义示例
 
 ```java
-package cn.structured.portal.enums;
+package cn.structured.org.enums;
 
-/**
- * 业务异常枚举 1105XX 错误码
- *
- * @author System
- */
-public enum PortalExceptionEnum {
+public enum OrgExceptionEnum {
 
-    SITE_NOT_FOUND("PORTAL_001", "站点不存在"),
-    SITE_ALREADY_EXISTS("PORTAL_002", "站点已存在"),
-    SITE_NAME_DUPLICATE("PORTAL_003", "站点名称重复"),
-    SITE_DOMAIN_DUPLICATE("PORTAL_004", "站点域名重复"),
-    SITE_CONFIG_ERROR("PORTAL_005", "站点配置错误"),
-    MENU_NOT_FOUND("PORTAL_101", "菜单不存在"),
-    MICRO_APP_NOT_FOUND("PORTAL_201", "微应用不存在"),
-    SCENE_NOT_FOUND("PORTAL_301", "场景不存在"),
-    CONFIG_NOT_FOUND("PORTAL_401", "配置不存在");
+    ORGANIZATION_NOT_FOUND("ORG_001", "组织不存在"),
+    ORGANIZATION_ALREADY_EXISTS("ORG_002", "组织已存在"),
+    DEPT_NOT_FOUND("ORG_101", "部门不存在"),
+    DEPT_PARENT_NOT_FOUND("ORG_102", "父部门不存在"),
+    DEPT_HAS_CHILDREN("ORG_103", "存在子部门，无法删除");
 
     private final String code;
     private final String message;
 
-    PortalExceptionEnum(String code, String message) {
+    OrgExceptionEnum(String code, String message) {
         this.code = code;
         this.message = message;
     }
@@ -122,12 +103,14 @@ public enum PortalExceptionEnum {
 }
 ```
 
+---
+
 ## 2️⃣ 异常规范 (exception/)
 
 ### 2.1 异常存放位置
 
 ```
-cn.structured.portal.exception
+cn.structured.org.exception
 ```
 
 ### 2.2 自定义业务异常
@@ -137,28 +120,19 @@ cn.structured.portal.exception
 ### 2.3 异常类定义示例
 
 ```java
-package cn.structured.portal.exception;
+package cn.structured.org.exception;
 
 import cn.structure.common.exception.CommonException;
-import cn.structured.portal.enums.PortalExceptionEnum;
+import cn.structured.org.enums.OrgExceptionEnum;
 
-/**
- * Portal业务异常
- *
- * @author System
- */
-public class PortalException extends CommonException {
+public class OrgException extends CommonException {
 
-    public PortalException(PortalExceptionEnum exceptionEnum) {
+    public OrgException(OrgExceptionEnum exceptionEnum) {
         super(exceptionEnum.getCode(), exceptionEnum.getMessage());
     }
 
-    public PortalException(String code, String message) {
+    public OrgException(String code, String message) {
         super(code, message);
-    }
-
-    public PortalException(String code, String message, Throwable cause) {
-        super(code, message, cause);
     }
 }
 ```
@@ -166,519 +140,260 @@ public class PortalException extends CommonException {
 ### 2.4 异常抛出示例
 
 ```java
-// ✅ 正确：使用枚举抛出异常
-if (site == null) {
-    throw new PortalException(PortalExceptionEnum.SITE_NOT_FOUND);
+if (dept == null) {
+    throw new OrgException(OrgExceptionEnum.DEPT_NOT_FOUND);
 }
 
-// ✅ 正确：使用枚举和自定义消息
-if (site == null) {
-    throw new PortalException(
-        PortalExceptionEnum.SITE_NOT_FOUND.getCode(),
-        "ID为" + id + "的站点不存在"
-    );
-}
-
-// ❌ 错误：直接抛出IllegalArgumentException
-if (site == null) {
-    throw new IllegalArgumentException("Site not found");
-}
+throw new OrgException("VALIDATION_ERROR", "部门名称不能为空");
 ```
 
-### 2.5 Controller层异常处理
-
-```java
-@GetMapping("/{id}")
-@Operation(summary = "获取站点详情")
-public ResResultVO<PortalSiteVO> getSiteById(@PathVariable String id) {
-    PortalSiteVO site = portalSiteService.getSiteById(id);
-    if (site == null) {
-        throw new PortalException(PortalExceptionEnum.SITE_NOT_FOUND);
-    }
-    return PortalResultUtils.success(site);
-}
-```
+---
 
 ## 3️⃣ 转换器规范 (assembler/)
 
 ### 3.1 转换器存放位置
 
 ```
-cn.structured.portal.assembler
+cn.structured.org.assembler
 ```
 
-### 3.2 转换器使用场景
+### 3.2 转换器命名规范
 
-- **Entity → VO**：数据库实体转换为视图对象
-- **Entity → DTO**：数据库实体转换为数据传输对象
-- **DTO → Entity**：数据传输对象转换为数据库实体
-- **复杂对象转换**：包含多个字段或计算逻辑的转换
+转换器命名为 `{业务名}Assembler`，如 `DeptAssembler`、`MemberAssembler`
 
 ### 3.3 转换器定义原则
 
-1. **工具类模式**：转换器使用私有构造函数，防止实例化
+1. **工具类模式**：使用私有构造函数，防止实例化
 2. **静态方法**：所有转换方法使用 `static` 关键字
-3. **命名规范**：转换器命名为 `{业务名}Assembler`，如 `SiteAssembler`
-4. **单向转换**：建议分开定义不同方向的转换方法，提高可读性
+3. **方法命名**：统一使用 `assembler()` 方法名
 
 ### 3.4 转换器示例
 
 ```java
-package cn.structured.portal.assembler;
+package cn.structured.org.assembler;
 
-import cn.structured.portal.dto.PortalSiteDTO;
-import cn.structured.portal.entity.PortalSite;
-import cn.structured.portal.vo.PortalSiteVO;
+import cn.structured.org.dto.DeptDTO;
+import cn.structured.org.entity.Dept;
+import cn.structured.org.vo.DeptVO;
 
-/**
- * Portal Site 转换器
- *
- * @author System
- */
-public class PortalSiteAssembler {
+public class DeptAssembler {
 
-    private PortalSiteAssembler() {
+    private DeptAssembler() {
     }
 
-    /**
-     * Entity转VO
-     *
-     * @param site 站点实体
-     * @return 站点VO
-     */
-    public static PortalSiteVO toVO(PortalSite site) {
-        if (site == null) {
+    public static DeptVO assembler(Dept dept) {
+        if (dept == null) {
             return null;
         }
-        PortalSiteVO vo = new PortalSiteVO();
-        vo.setId(site.getId());
-        vo.setName(site.getName());
-        vo.setDomain(site.getDomain());
-        vo.setStatus(site.getStatus());
-        vo.setDescription(site.getDescription());
-        vo.setConfig(site.getConfig());
-        vo.setCreateTime(site.getCreateTime());
-        vo.setUpdateTime(site.getUpdateTime());
+        DeptVO vo = new DeptVO();
+        vo.setId(dept.getId());
+        vo.setName(dept.getName());
+        vo.setParentId(dept.getParentId());
+        vo.setTreePath(dept.getTreePath());
+        vo.setSort(dept.getSort());
+        vo.setEnabled(dept.getEnabled());
+        vo.setCreateTime(dept.getCreateTime());
+        vo.setUpdateTime(dept.getUpdateTime());
         return vo;
     }
 
-    /**
-     * Entity列表转VO列表
-     *
-     * @param sites 站点实体列表
-     * @return 站点VO列表
-     */
-    public static List<PortalSiteVO> toVOList(List<PortalSite> sites) {
-        if (sites == null) {
-            return Collections.emptyList();
-        }
-        return sites.stream()
-                .map(PortalSiteAssembler::toVO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * DTO转Entity
-     *
-     * @param dto 站点DTO
-     * @return 站点实体
-     */
-    public static PortalSite toEntity(PortalSiteDTO dto) {
+    public static Dept assembler(DeptDTO dto) {
         if (dto == null) {
             return null;
         }
-        PortalSite site = new PortalSite();
-        site.setId(dto.getId());
-        site.setName(dto.getName());
-        site.setDomain(dto.getDomain());
-        site.setStatus(dto.getStatus());
-        site.setDescription(dto.getDescription());
-        site.setConfig(dto.getConfig());
-        return site;
-    }
-
-    /**
-     * 更新Entity
-     *
-     * @param dto 站点DTO
-     * @param site 站点实体
-     */
-    public static void updateEntity(PortalSiteDTO dto, PortalSite site) {
-        if (dto == null || site == null) {
-            return;
-        }
-        site.setName(dto.getName());
-        site.setDomain(dto.getDomain());
-        site.setStatus(dto.getStatus());
-        site.setDescription(dto.getDescription());
-        site.setConfig(dto.getConfig());
+        Dept dept = new Dept();
+        dept.setName(dto.getName());
+        dept.setParentId(dto.getParentId());
+        dept.setTreePath(dto.getTreePath());
+        dept.setSort(dto.getSort());
+        dept.setEnabled(dto.getEnabled());
+        return dept;
     }
 }
 ```
 
-### 3.5 Service层使用转换器
-
-```java
-// ✅ 正确：使用Assembler进行转换
-@Override
-public PortalSiteVO getSiteById(String id) {
-    PortalSite site = this.getById(id);
-    if (site == null) {
-        return null;
-    }
-    return PortalSiteAssembler.toVO(site);
-}
-
-@Override
-public List<PortalSiteVO> getSites() {
-    List<PortalSite> sites = this.list();
-    return PortalSiteAssembler.toVOList(sites);
-}
-
-// ❌ 错误：直接使用BeanUtil.copyProperties
-@Override
-public PortalSiteVO getSiteById(String id) {
-    PortalSite site = this.getById(id);
-    return BeanUtil.copyProperties(site, PortalSiteVO.class);
-}
-```
+---
 
 ## 4️⃣ 常量规范 (constant/)
 
 ### 4.1 常量存放位置
 
 ```
-cn.structured.portal.constant
+cn.structured.org.constant
 ```
 
-### 4.2 常量使用场景
+### 4.2 常量命名规范
 
-- **业务常量**：如默认配置、分页大小、缓存key等
-- **正则表达式**：常用的验证正则
-- **时间常量**：如超时时间、间隔时间等
-- **配置key**：配置文件中的key
+- 类名：`{业务}Constant`，如 `OrgConstant`
+- 常量名：全大写，下划线分隔，如 `DEFAULT_PAGE_SIZE`
 
 ### 4.3 常量定义示例
 
 ```java
-package cn.structured.portal.constant;
+package cn.structured.org.constant;
 
-/**
- * Portal业务常量
- *
- * @author System
- */
-public class PortalConstant {
+public class OrgConstant {
 
-    private PortalConstant() {
+    private OrgConstant() {
     }
 
     public static final int DEFAULT_PAGE_SIZE = 20;
     public static final int MAX_PAGE_SIZE = 100;
 
-    public static final String DEFAULT_SITE_STATUS = "active";
-
-    public static final String CACHE_KEY_PREFIX = "portal:";
-    public static final String CACHE_KEY_SITE = CACHE_KEY_PREFIX + "site:";
-    public static final String CACHE_KEY_CONFIG = CACHE_KEY_PREFIX + "config:";
+    public static final String CACHE_KEY_PREFIX = "org:";
+    public static final String CACHE_KEY_ORGANIZATION = CACHE_KEY_PREFIX + "organization:";
+    public static final String CACHE_KEY_DEPT = CACHE_KEY_PREFIX + "dept:";
+    public static final String CACHE_KEY_MEMBER = CACHE_KEY_PREFIX + "member:";
 
     public static final long CACHE_EXPIRE_SECONDS = 3600;
-
-    public static final String REGEX_DOMAIN = "^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})([/\\w .-]*)*/?$";
-    public static final String REGEX_URL = "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$";
 }
 ```
 
-## 5️⃣ 响应规范
+---
 
-### 5.1 统一响应类
+## 5️⃣ 实体类规范 (entity/)
 
-使用 `cn.structure.common.entity.ResResultVO` 作为统一响应类型
+### 5.1 实体类字段规范
 
-### 5.2 响应工具类
+| 字段 | 命名 | 注解 | 说明 |
+|-----|------|------|------|
+| 主键 | `id` | `@TableId` | 自增主键 |
+| 逻辑删除 | `deleted` | `@TableLogic` | Boolean类型 |
+| 创建时间 | `createTime` | `@TableField(fill = FieldFill.INSERT)` | LocalDateTime |
+| 更新时间 | `updateTime` | `@TableField(fill = FieldFill.INSERT_UPDATE)` | LocalDateTime |
+| 创建人 | `createBy` | `@TableField(fill = FieldFill.INSERT)` | Long |
+| 更新人 | `updateBy` | `@TableField(fill = FieldFill.INSERT_UPDATE)` | Long |
 
-使用 `cn.structured.portal.common.PortalResultUtils` 封装常用响应方法
+---
 
-### 5.3 响应使用示例
+## 6️⃣ DTO规范 (dto/)
 
-```java
-// ✅ 正确：使用PortalResultUtils
-return PortalResultUtils.success(data);
-return PortalResultUtils.success("操作成功", data);
-return PortalResultUtils.fail(404, "资源不存在");
+### 6.1 DTO命名规范
 
-// ✅ 正确：也可以直接使用ResResultVO
-return ResResultVO.success(data);
+类名：`{业务}DTO`，如 `DeptDTO`、`MemberDTO`
 
-// ❌ 错误：返回null或空集合
-return null;
-```
+### 6.2 DTO字段规范
 
-### 5.4 全局异常处理
+- 使用 `@NotBlank`、`@NotNull`、`@Size` 等注解进行参数校验
+- 使用 `@Schema` 注解添加Swagger文档说明
 
-建议在项目中配置全局异常处理器，统一处理业务异常：
+---
 
-```java
-@RestControllerAdvice
-public class GlobalExceptionHandler {
+## 7️⃣ VO规范 (vo/)
 
-    @ExceptionHandler(PortalException.class)
-    public ResResultVO<Void> handlePortalException(PortalException e) {
-        return PortalResultUtils.fail(e.getCode(), e.getMessage());
-    }
+### 7.1 VO命名规范
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResResultVO<Void> handleValidationException(MethodArgumentNotValidException e) {
-        String message = e.getBindingResult().getFieldError().getDefaultMessage();
-        return PortalResultUtils.fail("VALIDATION_ERROR", message);
-    }
-}
-```
+类名：`{业务}VO`，如 `DeptVO`、`MemberVO`
 
-## 6️⃣ 代码示例
+### 7.2 VO字段规范
 
-### 6.1 Service层完整示例
+- 使用 `@Schema` 注解添加Swagger文档说明
+- 树形结构包含 `children` 字段
 
-```java
-package cn.structured.portal.service.impl;
+---
 
-import cn.structured.portal.assembler.PortalSiteAssembler;
-import cn.structured.portal.constant.PortalConstant;
-import cn.structured.portal.entity.PortalSite;
-import cn.structured.portal.dto.PortalSiteDTO;
-import cn.structured.portal.enums.PortalExceptionEnum;
-import cn.structured.portal.enums.SiteStatusEnum;
-import cn.structured.portal.exception.PortalException;
-import cn.structured.portal.mapper.PortalSiteMapper;
-import cn.structured.portal.service.PortalSiteService;
-import cn.structured.portal.vo.PortalSiteVO;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+## 8️⃣ Query规范 (query/)
 
-import java.util.List;
+### 8.1 Query命名规范
 
-/**
- * Portal Site Service Implementation
- *
- * @author System
- */
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class PortalSiteServiceImpl extends ServiceImpl<PortalSiteMapper, PortalSite>
-        implements PortalSiteService {
+类名：`{业务}Query`，如 `DeptQuery`、`MemberQuery`
 
-    @Override
-    public List<PortalSiteVO> getSites() {
-        List<PortalSite> sites = this.list();
-        return PortalSiteAssembler.toVOList(sites);
-    }
+---
 
-    @Override
-    public PortalSiteVO getSiteById(String id) {
-        PortalSite site = this.getById(id);
-        if (site == null) {
-            throw new PortalException(PortalExceptionEnum.SITE_NOT_FOUND);
-        }
-        return PortalSiteAssembler.toVO(site);
-    }
+## 9️⃣ Service层规范
 
-    @Override
-    public PortalSiteVO createSite(PortalSiteDTO dto) {
-        PortalSite existingSite = this.lambdaQuery()
-                .eq(PortalSite::getDomain, dto.getDomain())
-                .one();
-        if (existingSite != null) {
-            throw new PortalException(PortalExceptionEnum.SITE_DOMAIN_DUPLICATE);
-        }
+### 9.1 Service接口规范
 
-        PortalSite site = PortalSiteAssembler.toEntity(dto);
-        if (site.getStatus() == null) {
-            site.setStatus(PortalConstant.DEFAULT_SITE_STATUS);
-        }
+| 操作 | 方法名 | 返回类型 |
+|-----|-------|---------|
+| 创建 | `create(DTO)` | `Long` |
+| 更新 | `update(id, DTO)` | `void` |
+| 删除 | `delete(id)` | `void` |
+| 查询单个 | `findById(id)` | `VO` |
+| 分页查询 | `page(query, reqPage)` | `ResPage<VO>` |
 
-        this.save(site);
-        log.info("Created site: {}", site.getId());
-        return PortalSiteAssembler.toVO(site);
-    }
+### 9.2 Service实现规范
 
-    @Override
-    public PortalSiteVO updateSite(PortalSiteDTO dto) {
-        if (dto.getId() == null) {
-            throw new PortalException("VALIDATION_ERROR", "站点ID不能为空");
-        }
+- 实现类名：`{业务}ServiceImpl`
+- 使用 `@Service`、`@Slf4j`、`@AllArgsConstructor` 注解
 
-        PortalSite existingSite = this.getById(dto.getId());
-        if (existingSite == null) {
-            throw new PortalException(PortalExceptionEnum.SITE_NOT_FOUND);
-        }
+---
 
-        PortalSiteAssembler.updateEntity(dto, existingSite);
-        this.updateById(existingSite);
-        log.info("Updated site: {}", existingSite.getId());
-        return PortalSiteAssembler.toVO(existingSite);
-    }
+## 🔟 Controller层规范
 
-    @Override
-    public PortalSiteVO deleteSite(String id) {
-        PortalSite site = this.getById(id);
-        if (site == null) {
-            throw new PortalException(PortalExceptionEnum.SITE_NOT_FOUND);
-        }
+### 10.1 Controller方法规范
 
-        this.removeById(id);
-        log.info("Deleted site: {}", id);
-        return PortalSiteAssembler.toVO(site);
-    }
-}
-```
+| 操作 | HTTP方法 | 路径 | 返回类型 |
+|-----|---------|------|---------|
+| 创建 | POST | `/api/{业务}` | `ResResultVO<Long>` |
+| 更新 | PUT | `/api/{业务}/{id}` | `ResResultVO<Void>` |
+| 删除 | DELETE | `/api/{业务}/{id}` | `ResResultVO<Void>` |
+| 查询单个 | GET | `/api/{业务}/{id}` | `ResResultVO<VO>` |
+| 分页查询 | GET | `/api/{业务}/page` | `ResResultVO<ResPage<VO>>` |
 
-### 6.2 Controller层完整示例
+---
+
+## 1️⃣1️⃣ Manager层规范
+
+### 11.1 Manager层职责
+
+- 封装数据访问逻辑
+- 继承 MyBatis Plus 的 `IService`
+- 在 Manager 层进行基础的数据校验
+
+---
+
+## 1️⃣2️⃣ 响应规范
+
+使用 `cn.structure.common.utils.ResultUtilSimpleImpl` 封装响应：
 
 ```java
-package cn.structured.portal.controller;
-
-import cn.structure.common.entity.ResResultVO;
-import cn.structured.portal.common.PortalResultUtils;
-import cn.structured.portal.dto.PortalSiteDTO;
-import cn.structured.portal.service.PortalSiteService;
-import cn.structured.portal.vo.PortalSiteVO;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-/**
- * Portal Site Controller
- *
- * @author System
- */
-@RestController
-@RequestMapping("/api/portal/sites")
-@RequiredArgsConstructor
-@Tag(name = "Portal Site API", description = "门户站点管理接口")
-public class PortalSiteController {
-
-    private final PortalSiteService portalSiteService;
-
-    @GetMapping
-    @Operation(summary = "获取站点列表", description = "获取所有站点")
-    public ResResultVO<List<PortalSiteVO>> getSites() {
-        List<PortalSiteVO> sites = portalSiteService.getSites();
-        return PortalResultUtils.success(sites);
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "获取站点详情", description = "根据ID获取站点详情")
-    public ResResultVO<PortalSiteVO> getSiteById(
-            @Parameter(description = "站点ID")
-            @PathVariable String id) {
-        PortalSiteVO site = portalSiteService.getSiteById(id);
-        return PortalResultUtils.success(site);
-    }
-
-    @PostMapping
-    @Operation(summary = "创建站点", description = "创建新的站点")
-    public ResResultVO<PortalSiteVO> createSite(
-            @Valid @RequestBody PortalSiteDTO dto) {
-        PortalSiteVO site = portalSiteService.createSite(dto);
-        return PortalResultUtils.success("站点创建成功", site);
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "更新站点", description = "更新指定ID的站点")
-    public ResResultVO<PortalSiteVO> updateSite(
-            @Parameter(description = "站点ID")
-            @PathVariable String id,
-            @Valid @RequestBody PortalSiteDTO dto) {
-        dto.setId(id);
-        PortalSiteVO site = portalSiteService.updateSite(dto);
-        return PortalResultUtils.success("站点更新成功", site);
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "删除站点", description = "删除指定ID的站点")
-    public ResResultVO<PortalSiteVO> deleteSite(
-            @Parameter(description = "站点ID")
-            @PathVariable String id) {
-        PortalSiteVO site = portalSiteService.deleteSite(id);
-        return PortalResultUtils.success("站点删除成功", site);
-    }
-}
+ResultUtilSimpleImpl.success(data);
+ResultUtilSimpleImpl.fail(code, message);
 ```
 
-## 7️⃣ 代码检查清单
+---
 
-在提交代码前，请检查以下项目：
+## 1️⃣3️⃣ 命名规范汇总
 
-### ✅ 枚举检查
+| 类型 | 命名模式 | 示例 |
+|-----|---------|------|
+| 枚举类 | `{业务}Enum` | `OrgExceptionEnum` |
+| 异常类 | `{业务}Exception` | `OrgException` |
+| 转换器 | `{业务}Assembler` | `DeptAssembler` |
+| 常量类 | `{业务}Constant` | `OrgConstant` |
+| 实体类 | `{业务}` | `Dept` |
+| DTO类 | `{业务}DTO` | `DeptDTO` |
+| VO类 | `{业务}VO` | `DeptVO` |
+| Query类 | `{业务}Query` | `DeptQuery` |
+| Service接口 | `I{业务}Service` | `IDeptService` |
+| Service实现 | `{业务}ServiceImpl` | `DeptServiceImpl` |
+| Manager接口 | `I{业务}Manager` | `IDeptManager` |
+| Manager实现 | `{业务}ManagerImpl` | `DeptManagerImpl` |
+| Controller | `{业务}Controller` | `DeptController` |
+| Mapper | `{业务}Mapper` | `DeptMapper` |
 
-- [ ] 状态码是否定义为枚举？
-- [ ] 错误码是否定义为枚举？
+---
+
+## 1️⃣4️⃣ 代码检查清单
+
 - [ ] 枚举是否存放在 `enums/` 包下？
-
-### ✅ 异常检查
-
-- [ ] 是否使用 `PortalException` 抛出业务异常？
-- [ ] 是否继承 `CommonException`？
-- [ ] Controller层是否统一使用异常而非返回错误码？
-
-### ✅ 转换器检查
-
+- [ ] 是否使用 `OrgException` 抛出业务异常？
 - [ ] 是否使用 `Assembler` 进行对象转换？
-- [ ] 是否避免在Service层使用 `BeanUtil.copyProperties`？
-- [ ] 转换器是否存放在 `assembler/` 包下？
-
-### ✅ 常量检查
-
 - [ ] 业务常量是否定义为常量类？
-- [ ] 常量是否存放在 `constant/` 包下？
-- [ ] 是否避免在代码中直接使用魔法值？
+- [ ] 是否使用 `ResultUtilSimpleImpl` 封装响应？
 
-### ✅ 响应检查
-
-- [ ] 是否使用 `PortalResultUtils`？
-- [ ] Controller是否统一使用异常处理而非手动返回错误？
-
-## 8️⃣ 常见问题
-
-### Q1: 什么时候使用枚举？什么时候使用常量？
-
-- **枚举**：适用于一组相关的固定值，特别是需要遍历或比较的场景
-- **常量**：适用于单个固定值，如配置key、缓存时间等
-
-### Q2: 为什么不能用 BeanUtil.copyProperties？
-
-- BeanUtil 适合简单的属性拷贝
-- Assembler 适合复杂转换，可以包含业务逻辑
-- Assembler 更易维护和测试
-- Assembler 可以明确表达转换意图
-
-### Q3: Controller层要不要处理异常？
-
-- ✅ 推荐在Controller层抛出异常，由全局异常处理器统一处理
-- ❌ 不推荐在Controller层手动返回错误响应
+---
 
 ## 📚 相关文档
 
-- [Final Changes](FINAL_CHANGES.md)
-- [Modifications](MODIFICATIONS.md)
 - [README](README.md)
 
 ## 🔄 文档更新日志
 
-### v1.0.0 (2026-06-01)
+### v1.0.0 (2026-06-16)
 
 - 初始版本
-- 定义枚举规范
-- 定义异常规范
-- 定义转换器规范
-- 定义常量规范
-- 定义响应规范
-- 提供完整的代码示例
+- 定义枚举、异常、转换器、常量规范
+- 定义实体类、DTO/VO/Query规范
+- 定义Service/Controller/Manager层规范
