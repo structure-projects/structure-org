@@ -1,5 +1,10 @@
 package cn.structured.org.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum OrgExceptionEnum {
 
     ORGANIZATION_NOT_FOUND("ORG_001", "组织不存在"),
@@ -17,17 +22,4 @@ public enum OrgExceptionEnum {
 
     private final String code;
     private final String message;
-
-    OrgExceptionEnum(String code, String message) {
-        this.code = code;
-        this.message = message;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 }

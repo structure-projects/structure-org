@@ -1,4 +1,4 @@
-FROM eclipse-temurin:8-jdk-alpine
+FROM eclipse-temurin:17-jdk-alpine
 ADD ./target/org-server.jar /app/boot/app.jar
 ADD liveness.sh /app/liveness.sh
 ENV PARAMS=""

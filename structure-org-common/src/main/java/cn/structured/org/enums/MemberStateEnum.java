@@ -1,5 +1,17 @@
 package cn.structured.org.enums;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+/**
+ * 成员状态枚举
+ *
+ * @author chuck
+ * @since 2024-01-01
+ */
+@Getter
+@AllArgsConstructor
 public enum MemberStateEnum {
 
     NORMAL(1, "正常"),
@@ -8,19 +20,6 @@ public enum MemberStateEnum {
 
     private final Integer code;
     private final String description;
-
-    MemberStateEnum(Integer code, String description) {
-        this.code = code;
-        this.description = description;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 
     public static MemberStateEnum getByCode(Integer code) {
         for (MemberStateEnum state : values()) {

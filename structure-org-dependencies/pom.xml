@@ -26,6 +26,9 @@
         <spring-cloud.version>2025.1.0</spring-cloud.version>
         <spring-alibaba.version>2025.1.0.0</spring-alibaba.version>
         <spring-cloud-parent.version>5.0.0</spring-cloud-parent.version>
+        <bouncycastle.version>1.84</bouncycastle.version>
+        <commons-fileupload.version>1.6.0</commons-fileupload.version>
+        <structure-security.version>1.1.2</structure-security.version>
     </properties>
 
     <modules>
@@ -98,6 +101,35 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+            <!-- CVE-2026-0636 修复 -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <!-- CVE-2025-48976 修复 -->
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>${commons-fileupload.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.structured</groupId>
+                <artifactId>structure-security-core</artifactId>
+                <version>${structure-security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.structured</groupId>
+                <artifactId>structure-security-oauth-resource-starter</artifactId>
+                <version>${structure-security.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

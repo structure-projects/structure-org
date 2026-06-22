@@ -1,5 +1,6 @@
 package cn.structured.org.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import cn.structure.common.vo.ReqPage;
 import cn.structure.common.vo.ResPage;
 import cn.structured.mybatis.plus.starter.convert.ResPageConvert;
@@ -69,8 +70,8 @@ public class MemberServiceImpl implements IMemberService {
                 .eq(null != query.getUserId(), Member::getUserId, query.getUserId())
                 .eq(null != query.getDeptId(), Member::getDeptId, query.getDeptId())
                 .eq(null != query.getState(), Member::getState, query.getState())
-                .like(null != query.getPhone(), Member::getPhone, query.getPhone())
-                .like(null != query.getName(), Member::getName, query.getName())
+                .like(StrUtil.isNotBlank(query.getPhone()), Member::getPhone, query.getPhone())
+                .like(StrUtil.isNotBlank(query.getName()), Member::getName, query.getName())
                 .orderByDesc(Member::getCreateTime);
         Page<Member> result = memberManager.page(page, queryWrapper);
         return ResPageConvert.convert(result, MemberAssembler::assemble);
