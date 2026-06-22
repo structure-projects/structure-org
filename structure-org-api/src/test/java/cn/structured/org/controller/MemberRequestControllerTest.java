@@ -1,5 +1,6 @@
 package cn.structured.org.controller;
 
+import cn.structured.org.config.AbstractIntegrationTest;
 import cn.structured.org.config.TestConfig;
 import cn.structured.org.dto.MemberAuditDTO;
 import cn.structured.org.dto.MemberInviteConfirmDTO;
@@ -10,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -36,11 +36,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author chuck
  * @since 2024-01-01
  */
-@SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestConfig.class)
 @DisplayName("成员邀请功能集成测试")
-class MemberRequestControllerTest {
+class MemberRequestControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

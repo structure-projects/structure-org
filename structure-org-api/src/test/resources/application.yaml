@@ -1,6 +1,29 @@
 server:
-  port: 18103
+  port: 8080
 spring:
+  profiles:
+    active: dev
+  application:
+    name: org-server
+  cloud:
+    nacos:
+      server-addr: ${NACOS_SERVER:nacos.structured.cn:8848}
+      discovery:
+        namespace: ${NACOS_NAMESPACE:5a4e4c1f-beda-4ae5-a3d7-428950e7473b}
+        group: ${NACOC_GROUP:${spring.profiles.active}}
+        enabled: ${NACOS_DISCOVERY_ENABLE:false}
+        username: ${NACOS_USERNAME:structure}
+        password: ${NACOS_PASSWORD:structure}
+      config:
+        server-addr: ${NACOS_SERVER:nacos.structured.cn:8848}
+        namespace: ${NACOS_NAMESPACE:5a4e4c1f-beda-4ae5-a3d7-428950e7473b}
+        group: ${NACOC_GROUP:${spring.profiles.active}}
+        name: ${spring.application.name}
+        file-extension: yaml
+        enabled: ${NACOS_CONFIG_ENABLE:false}
+        username: ${NACOS_USERNAME:structure}
+        password: ${NACOS_PASSWORD:structure}
+
   main:
     allow-bean-definition-overriding: true
   datasource:
@@ -42,8 +65,6 @@ spring:
     validate-on-migrate: true # 执行迁移时是否自动调用验证
     locations: classpath:db/migration
   # 配置数据库，flyway那边就无需再进行数据的配置了
-  profiles:
-    active: dev
 logging:
   level:
     org.springframework.security: DEBUG
