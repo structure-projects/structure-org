@@ -8,8 +8,6 @@ import cn.structured.org.dto.MemberRequestDTO;
 import cn.structured.org.dto.OrganizationDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.FixedMethodOrder;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,7 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Import(TestConfig.class)
 @DisplayName("成员邀请功能集成测试")
-@FixedMethodOrder(MethodOrderer.MethodName.class)
 class MemberRequestControllerTest {
 
     @Autowired
