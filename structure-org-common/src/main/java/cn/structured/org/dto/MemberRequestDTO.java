@@ -19,13 +19,18 @@ public class MemberRequestDTO {
     @NotNull(message = "组织ID不能为空")
     private Long organizationId;
 
-    @Schema(description = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "用户ID不能为空")
+    @Schema(description = "申请人用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long userId;
+
+    @Schema(description = "邀请人用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long inviteUserId;
 
     @Schema(description = "手机号", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "手机号不能为空")
     private String phone;
+
+    @Schema(description = "邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String email;
 
     @Schema(description = "姓名")
     private String name;
@@ -35,6 +40,9 @@ public class MemberRequestDTO {
 
     @Schema(description = "记录类型 1:申请加入 2:邀请加入", defaultValue = "1")
     private Integer type;
+
+    @Schema(description = "邀请链接ID")
+    private Long inviteLinkId;
 
     @Schema(description = "申请理由")
     private String reason;

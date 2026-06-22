@@ -18,7 +18,11 @@ public enum OrgExceptionEnum {
     MEMBER_NOT_FOUND("ORG_201", "成员不存在"),
     
     MEMBER_REQUEST_NOT_FOUND("ORG_301", "申请记录不存在"),
-    MEMBER_REQUEST_STATUS_ERROR("ORG_302", "申请状态不允许审核");
+    MEMBER_REQUEST_STATUS_ERROR("ORG_302", "申请状态不允许审核"),
+
+    INVITE_LINK_NOT_FOUND("ORG_401", "邀请链接不存在"),
+    INVITE_LINK_EXPIRED("ORG_402", "邀请链接已过期"),
+    INVITE_LINK_DISABLED("ORG_403", "邀请链接已禁用");
 
     private final String code;
     private final String message;

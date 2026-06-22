@@ -81,6 +81,7 @@ CREATE TABLE `member_request` (
                                   `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '姓名',
                                   `dept_id` bigint DEFAULT NULL COMMENT '申请部门ID',
                                   `type` tinyint NOT NULL DEFAULT '1' COMMENT '记录类型 1:申请加入 2:邀请加入',
+                                  `invite_link_id` bigint DEFAULT NULL COMMENT '邀请链接ID',
                                   `reason` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '申请理由',
                                   `state` tinyint NOT NULL DEFAULT '1' COMMENT '状态 1:待审核 2:已通过 3:已拒绝',
                                   `reject_reason` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '拒绝理由',
@@ -93,7 +94,64 @@ CREATE TABLE `member_request` (
                                   `update_by` bigint DEFAULT NULL COMMENT '更新人',
                                   PRIMARY KEY (`id`) USING BTREE,
                                   KEY `idx_org_user` (`organization_id`, `user_id`) USING BTREE,
-                                  KEY `idx_request_state` (`state`) USING BTREE
+                                  KEY `idx_request_state` (`state`) USING BTREE,
+                                  KEY `idx_invite_link_id` (`invite_link_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='成员邀请申请记录表';
+
+-- ----------------------------
+-- Table structure for invite_link
+-- ----------------------------
+DROP TABLE IF EXISTS `invite_link`;
+CREATE TABLE `invite_link` (
+                                `id` bigint NOT NULL COMMENT '主键（雪花算法ID）',
+                                `organization_id` bigint NOT NULL COMMENT '组织ID',
+                                `organization_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '组织名称',
+                                `dept_id` bigint DEFAULT NULL COMMENT '部门ID',
+                                `dept_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '部门名称',
+                                `invite_user_id` bigint DEFAULT NULL COMMENT '邀请人用户ID',
+                                `invite_user_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '邀请人姓名',
+                                `invite_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '邀请码',
+                                `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
+                                `max_use_count` int DEFAULT '0' COMMENT '最大使用次数，0表示不限制',
+                                `use_count` int DEFAULT '0' COMMENT '已使用次数',
+                                `state` tinyint NOT NULL DEFAULT '1' COMMENT '状态 1:有效 2:已过期 3:已禁用',
+                                `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除 0 否 ，1 是',
+                                `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+                                `create_by` bigint DEFAULT NULL COMMENT '创建人',
+                                `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+                                `update_by` bigint DEFAULT NULL COMMENT '更新人',
+                                PRIMARY KEY (`id`) USING BTREE,
+                                UNIQUE KEY `uk_invite_code` (`invite_code`) USING BTREE,
+                                KEY `idx_org_id` (`organization_id`) USING BTREE,
+                                KEY `idx_state` (`state`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='邀请链接表';
+
+-- ----------------------------
+-- Table structure for member_invite
+-- ----------------------------
+DROP TABLE IF EXISTS `member_invite`;
+CREATE TABLE `member_invite` (
+                                `id` bigint NOT NULL COMMENT '主键（雪花算法ID）',
+                                `organization_id` bigint NOT NULL COMMENT '组织ID',
+                                `organization_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '组织名称',
+                                `dept_id` bigint DEFAULT NULL COMMENT '部门ID',
+                                `dept_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '部门名称',
+                                `invite_user_id` bigint DEFAULT NULL COMMENT '邀请人用户ID',
+                                `invite_user_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '邀请人姓名',
+                                `invite_phone` varchar(64) NOT NULL COMMENT '被邀请人手机号',
+                                `invite_code` varchar(64) NOT NULL COMMENT '邀请码',
+                                `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
+                                `state` tinyint NOT NULL DEFAULT '1' COMMENT '状态 1:待接收 2:已接收 3:已过期 4:已取消',
+                                `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除 0 否 ，1 是',
+                                `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+                                `create_by` bigint DEFAULT NULL COMMENT '创建人',
+                                `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+                                `update_by` bigint DEFAULT NULL COMMENT '更新人',
+                                PRIMARY KEY (`id`) USING BTREE,
+                                KEY `idx_invite_phone` (`invite_phone`) USING BTREE,
+                                KEY `idx_invite_code` (`invite_code`) USING BTREE,
+                                KEY `idx_org_id` (`organization_id`) USING BTREE,
+                                KEY `idx_state` (`state`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='成员邀请记录表';
 
 SET FOREIGN_KEY_CHECKS = 1;

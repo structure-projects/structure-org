@@ -34,14 +34,6 @@ public class OrganizationServiceImpl implements IOrganizationService {
 
     @Override
     public Long create(OrganizationDTO dto) {
-        if (StringUtils.hasText(dto.getCode())) {
-            long count = organizationManager.count(Wrappers.<Organization>lambdaQuery()
-                    .eq(Organization::getCode, dto.getCode()));
-            if (count > 0) {
-                log.warn("组织编码已存在: {}", dto.getCode());
-                throw new OrgException(OrgExceptionEnum.ORGANIZATION_CODE_DUPLICATE);
-            }
-        }
         Organization organization = OrganizationAssembler.assembler(dto);
         organizationManager.save(organization);
         log.info("创建组织成功, 组织ID: {}", organization.getId());
@@ -50,16 +42,6 @@ public class OrganizationServiceImpl implements IOrganizationService {
 
     @Override
     public void update(Long id, OrganizationDTO dto) {
-        Organization organization = organizationManager.getById(id);
-        if (StringUtils.hasText(dto.getCode()) && !dto.getCode().equals(organization.getCode())) {
-            long count = organizationManager.count(Wrappers.<Organization>lambdaQuery()
-                    .eq(Organization::getCode, dto.getCode())
-                    .ne(Organization::getId, id));
-            if (count > 0) {
-                log.warn("组织编码重复: {}", dto.getCode());
-                throw new OrgException(OrgExceptionEnum.ORGANIZATION_CODE_DUPLICATE);
-            }
-        }
         Organization updateOrganization = OrganizationAssembler.assembler(dto);
         updateOrganization.setId(id);
         organizationManager.updateById(updateOrganization);
@@ -68,11 +50,6 @@ public class OrganizationServiceImpl implements IOrganizationService {
 
     @Override
     public void delete(Long id) {
-        Organization organization = organizationManager.getById(id);
-        if (organization == null) {
-            log.warn("组织不存在, 组织ID: {}", id);
-            throw new OrgException(OrgExceptionEnum.ORGANIZATION_NOT_FOUND);
-        }
         organizationManager.removeById(id);
         log.info("删除组织成功, 组织ID: {}", id);
     }
@@ -91,23 +68,16 @@ public class OrganizationServiceImpl implements IOrganizationService {
     @Override
     public ResPage<OrganizationVO> page(OrganizationQuery query, ReqPage reqPage) {
         Page<Organization> page = new Page<>(reqPage.getCurrentPage(), reqPage.getPageSize());
-        LambdaQueryWrapper<Organization> wrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.hasText(query.getName())) {
-            wrapper.like(Organization::getName, query.getName());
-        }
-        if (StringUtils.hasText(query.getCode())) {
-            wrapper.eq(Organization::getCode, query.getCode());
-        }
-        if (query.getState() != null) {
-            wrapper.eq(Organization::getState, query.getState());
-        }
-        if (query.getType() != null) {
-            wrapper.eq(Organization::getType, query.getType());
-        }
-        if (StringUtils.hasText(query.getIndustry())) {
-            wrapper.like(Organization::getIndustry, query.getIndustry());
-        }
-        wrapper.orderByDesc(Organization::getCreateTime);
+        // 构建查询条件
+        LambdaQueryWrapper<Organization> wrapper = Wrappers.<Organization>lambdaQuery()
+                .like(StringUtils.hasText(query.getName()), Organization::getName, query.getName())
+                .like(StringUtils.hasText(query.getCode()), Organization::getCode, query.getCode())
+                .eq(query.getState() != null, Organization::getState, query.getState())
+                .eq(query.getType() != null, Organization::getType, query.getType())
+                .like(StringUtils.hasText(query.getIndustry()), Organization::getIndustry, query.getIndustry())
+                .orderByDesc(Organization::getCreateTime);
+
+        // 查询
         Page<Organization> result = organizationManager.page(page, wrapper);
 
         ResPage<OrganizationVO> resPage = new ResPage<>();

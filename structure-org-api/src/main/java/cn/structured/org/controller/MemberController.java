@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,13 +31,6 @@ import java.util.List;
 public class MemberController {
 
     private final IMemberService memberService;
-
-    @PostMapping
-    @Operation(summary = "创建成员")
-    public ResResultVO<Long> create(@Valid @RequestBody MemberDTO dto) {
-        Long id = memberService.create(dto);
-        return ResultUtilSimpleImpl.success(id);
-    }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新成员")
@@ -62,7 +56,7 @@ public class MemberController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询成员")
-    public ResResultVO<ResPage<MemberVO>> page(MemberQuery query, ReqPage reqPage) {
+    public ResResultVO<ResPage<MemberVO>> page(@ParameterObject MemberQuery query, @ParameterObject ReqPage reqPage) {
         return ResultUtilSimpleImpl.success(memberService.page(query, reqPage));
     }
 }

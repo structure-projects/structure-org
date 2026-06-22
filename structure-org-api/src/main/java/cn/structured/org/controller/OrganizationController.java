@@ -13,9 +13,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * 组织管理控制器
@@ -62,7 +61,8 @@ public class OrganizationController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询组织")
-    public ResResultVO<ResPage<OrganizationVO>> page(OrganizationQuery query, ReqPage reqPage) {
+    public ResResultVO<ResPage<OrganizationVO>> page(@ParameterObject() OrganizationQuery query,
+                                                     @ParameterObject() ReqPage reqPage) {
         return ResultUtilSimpleImpl.success(organizationService.page(query, reqPage));
     }
 }

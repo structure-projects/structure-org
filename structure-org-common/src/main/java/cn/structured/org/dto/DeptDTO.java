@@ -32,4 +32,8 @@ public class DeptDTO {
     @Schema(description = "是否启用", defaultValue = "true")
     private Boolean enabled;
 
+    @Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "组织ID不能为空")
+    private Long organizationId;
+
 }

@@ -94,14 +94,16 @@ public class DeptServiceImpl implements IDeptService {
     }
 
     @Override
-    public void delete(Long id) {
-        long count = deptManager.count(new LambdaQueryWrapper<Dept>().eq(Dept::getParentId, id));
-        if (count > 0) {
-            log.warn("存在子部门, 无法删除, 部门ID: {}", id);
-            throw new OrgException(OrgExceptionEnum.DEPT_HAS_CHILDREN);
+    public void deleteByIds(List<Long> ids) {
+        for (Long id : ids) {
+            long count = deptManager.count(new LambdaQueryWrapper<Dept>().eq(Dept::getParentId, id));
+            if (count > 0) {
+                log.warn("存在子部门, 无法删除, 部门ID: {}", id);
+                throw new OrgException(OrgExceptionEnum.DEPT_HAS_CHILDREN);
+            }
         }
-        deptManager.removeById(id);
-        log.info("删除部门成功, 部门ID: {}", id);
+        deptManager.removeByIds(ids);
+        log.info("批量删除部门成功, 部门ID列表: {}", ids);
     }
 
     @Override
@@ -139,10 +141,27 @@ public class DeptServiceImpl implements IDeptService {
     }
 
     @Override
-    public List<DeptVO> tree(Long organizationId) {
-        List<Dept> depts = deptManager.list(new LambdaQueryWrapper<Dept>()
-                .eq(Dept::getOrganizationId, organizationId)
-                .orderByAsc(Dept::getSort));
+    public List<DeptVO> tree(Long organizationId, String keywords, Boolean enabled) {
+        LambdaQueryWrapper<Dept> wrapper = new LambdaQueryWrapper<>();
+
+        // 添加组织ID过滤（可选）
+        if (organizationId != null) {
+            wrapper.eq(Dept::getOrganizationId, organizationId);
+        }
+
+        // 添加关键字搜索（可选）
+        if (keywords != null && !keywords.trim().isEmpty()) {
+            wrapper.like(Dept::getName, keywords);
+        }
+
+        // 添加启用状态过滤（可选）
+        if (enabled != null) {
+            wrapper.eq(Dept::getEnabled, enabled);
+        }
+
+        wrapper.orderByAsc(Dept::getSort);
+
+        List<Dept> depts = deptManager.list(wrapper);
 
         List<DeptVO> voList = depts.stream().map(DeptAssembler::assembler).toList();
 

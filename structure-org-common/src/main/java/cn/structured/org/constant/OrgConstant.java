@@ -14,4 +14,6 @@ public class OrgConstant {
     public static final String CACHE_KEY_MEMBER = CACHE_KEY_PREFIX + "member:";
 
     public static final long CACHE_EXPIRE_SECONDS = 3600;
+
+    public static final String INVITE_LINK_PATH = "/#/invite/";
 }

@@ -21,13 +21,13 @@ public interface IDeptService  {
 
     void update(Long id, DeptDTO dto);
 
-    void delete(Long id);
+    void deleteByIds(List<Long> ids);
 
     DeptVO findById(Long id);
 
     ResPage<DeptVO> page(DeptQuery query, ReqPage reqPage);
 
-    List<DeptVO> tree(Long organizationId);
+    List<DeptVO> tree(Long organizationId, String keywords, Boolean enabled);
 
     List<OptionVO> options(Long organizationId);
 }

@@ -6,53 +6,47 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 成员申请实体类
+ * 成员邀请记录实体类
  *
  * @author chuck
  * @since 2024-01-01
  */
 @Data
-@TableName("member_request")
-public class MemberRequest {
+@TableName("member_invite")
+public class MemberInvite {
 
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("organization_id")
     private Long organizationId;
 
-    @TableField("user_id")
-    private Long userId;
-
-    @TableField("phone")
-    private String phone;
-
-    @TableField("name")
-    private String name;
+    @TableField("organization_name")
+    private String organizationName;
 
     @TableField("dept_id")
     private Long deptId;
 
-    @TableField("type")
-    private Integer type;
+    @TableField("dept_name")
+    private String deptName;
 
-    @TableField("invite_link_id")
-    private Long inviteLinkId;
+    @TableField("invite_user_id")
+    private Long inviteUserId;
 
-    @TableField("reason")
-    private String reason;
+    @TableField("invite_user_name")
+    private String inviteUserName;
+
+    @TableField("invite_phone")
+    private String invitePhone;
+
+    @TableField("invite_code")
+    private String inviteCode;
+
+    @TableField("expire_time")
+    private LocalDateTime expireTime;
 
     @TableField("state")
     private Integer state;
-
-    @TableField("reject_reason")
-    private String rejectReason;
-
-    @TableField("audit_time")
-    private LocalDateTime auditTime;
-
-    @TableField("audit_by")
-    private Long auditBy;
 
     @TableField(value = "is_deleted", fill = FieldFill.INSERT)
     @TableLogic

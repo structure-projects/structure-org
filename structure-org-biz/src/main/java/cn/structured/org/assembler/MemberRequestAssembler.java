@@ -4,11 +4,6 @@ import cn.structured.org.dto.MemberRequestDTO;
 import cn.structured.org.entity.MemberRequest;
 import cn.structured.org.vo.MemberRequestVO;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 public class MemberRequestAssembler {
 
     private MemberRequestAssembler() {
@@ -27,6 +22,7 @@ public class MemberRequestAssembler {
         vo.setName(request.getName());
         vo.setDeptId(request.getDeptId());
         vo.setType(request.getType());
+        vo.setInviteLinkId(request.getInviteLinkId());
         vo.setReason(request.getReason());
         vo.setState(request.getState());
         vo.setRejectReason(request.getRejectReason());
@@ -51,6 +47,7 @@ public class MemberRequestAssembler {
         request.setName(dto.getName());
         request.setDeptId(dto.getDeptId());
         request.setType(dto.getType() != null ? dto.getType() : 1);
+        request.setInviteLinkId(dto.getInviteLinkId());
         request.setReason(dto.getReason());
         request.setState(1);
         return request;

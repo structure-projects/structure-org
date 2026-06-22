@@ -42,6 +42,9 @@ public class MemberRequestVO {
     @Schema(description = "记录类型 1:申请加入 2:邀请加入")
     private Integer type;
 
+    @Schema(description = "邀请链接ID")
+    private Long inviteLinkId;
+
     @Schema(description = "申请理由")
     private String reason;
 

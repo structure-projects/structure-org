@@ -70,6 +70,25 @@
             <artifactId>structure-security-oauth-resource-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>cn.structured</groupId>
+            <artifactId>structure-security-permission-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.structured</groupId>
+            <artifactId>structure-datascope-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.structured</groupId>
+            <artifactId>structure-datascope-mybatis-plus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
+
         <!-- CVE-2026-0636 修复 -->
         <dependency>
             <groupId>org.bouncycastle</groupId>

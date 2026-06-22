@@ -114,5 +114,4 @@ public class MemberRequestServiceImpl implements IMemberRequestService {
         // 转换为响应分页对象
         return ResPageConvert.convert(result, MemberRequestAssembler::assemble);
     }
-
 }

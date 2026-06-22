@@ -28,7 +28,8 @@
         <spring-cloud-parent.version>5.0.0</spring-cloud-parent.version>
         <bouncycastle.version>1.84</bouncycastle.version>
         <commons-fileupload.version>1.6.0</commons-fileupload.version>
-        <structure-security.version>1.1.2</structure-security.version>
+        <structure-security.version>1.1.4</structure-security.version>
+        <structure-datascope.version>1.0.3</structure-datascope.version>
     </properties>
 
     <modules>
@@ -130,6 +131,28 @@
                 <groupId>cn.structured</groupId>
                 <artifactId>structure-security-oauth-resource-starter</artifactId>
                 <version>${structure-security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.structured</groupId>
+                <artifactId>structure-security-permission-starter</artifactId>
+                <version>${structure-security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.structured</groupId>
+                <artifactId>structure-datascope-starter</artifactId>
+                <version>${structure-datascope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.structured</groupId>
+                <artifactId>structure-datascope-mybatis-plus</artifactId>
+                <version>${structure-datascope.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>4.5.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

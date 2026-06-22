@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -31,7 +32,7 @@ public class MemberRequestController {
     private final IMemberRequestService memberRequestService;
 
     @PostMapping
-    @Operation(summary = "创建申请")
+    @Operation(summary = "申请加入组织")
     public ResResultVO<Long> create(@Valid @RequestBody MemberRequestDTO dto) {
         Long id = memberRequestService.create(dto);
         return ResultUtilSimpleImpl.success(id);
@@ -52,7 +53,7 @@ public class MemberRequestController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询申请")
-    public ResResultVO<ResPage<MemberRequestVO>> page(MemberRequestQuery query, ReqPage reqPage) {
+    public ResResultVO<ResPage<MemberRequestVO>> page(@ParameterObject MemberRequestQuery query, @ParameterObject ReqPage reqPage) {
         return ResultUtilSimpleImpl.success(memberRequestService.page(query, reqPage));
     }
 }
