@@ -13,6 +13,7 @@ import cn.structured.org.query.DeptQuery;
 import cn.structured.org.service.IDeptService;
 import cn.structured.org.vo.DeptVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -114,21 +115,14 @@ public class DeptServiceImpl implements IDeptService {
 
     @Override
     public ResPage<DeptVO> page(DeptQuery query, ReqPage reqPage) {
-        Page<Dept> page = new Page<>(reqPage.getCurrentPage(), reqPage.getPageSize());
-        LambdaQueryWrapper<Dept> wrapper = new LambdaQueryWrapper<>();
-        if (query.getName() != null) {
-            wrapper.like(Dept::getName, query.getName());
-        }
-        if (query.getParentId() != null) {
-            wrapper.eq(Dept::getParentId, query.getParentId());
-        }
-        if (query.getEnabled() != null) {
-            wrapper.eq(Dept::getEnabled, query.getEnabled());
-        }
-        if (query.getOrganizationId() != null) {
-            wrapper.eq(Dept::getOrganizationId, query.getOrganizationId());
-        }
-        wrapper.orderByAsc(Dept::getSort);
+        Page<Dept> page = new Page<>(reqPage.getPage(), reqPage.getSize());
+        // 构建查询条件
+        LambdaQueryWrapper<Dept> wrapper = Wrappers.<Dept>lambdaQuery()
+                .like(query.getName() != null, Dept::getName, query.getName())
+                .eq(query.getParentId() != null, Dept::getParentId, query.getParentId())
+                .eq(query.getEnabled() != null, Dept::getEnabled, query.getEnabled())
+                .eq(query.getOrganizationId() != null, Dept::getOrganizationId, query.getOrganizationId())
+                .orderByAsc(Dept::getSort);
         Page<Dept> result = deptManager.page(page, wrapper);
 
         ResPage<DeptVO> resPage = new ResPage<>();

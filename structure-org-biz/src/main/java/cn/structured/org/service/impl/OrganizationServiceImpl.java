@@ -67,7 +67,7 @@ public class OrganizationServiceImpl implements IOrganizationService {
 
     @Override
     public ResPage<OrganizationVO> page(OrganizationQuery query, ReqPage reqPage) {
-        Page<Organization> page = new Page<>(reqPage.getCurrentPage(), reqPage.getPageSize());
+        Page<Organization> page = new Page<>(reqPage.getPage(), reqPage.getSize());
         // 构建查询条件
         LambdaQueryWrapper<Organization> wrapper = Wrappers.<Organization>lambdaQuery()
                 .like(StringUtils.hasText(query.getName()), Organization::getName, query.getName())

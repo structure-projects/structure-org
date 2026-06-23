@@ -57,7 +57,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         dto.setEnabled(true);
         dto.setOrganizationId(organizationId);
 
-        mockMvc.perform(post("/api/org/dept")
+        mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -71,7 +71,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         DeptDTO dto = new DeptDTO();
         // 不设置 name 和 organizationId，应该校验失败
 
-        mockMvc.perform(post("/api/org/dept")
+        mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -104,7 +104,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         createDto.setEnabled(true);
         createDto.setOrganizationId(organizationId);
 
-        String response = mockMvc.perform(post("/api/org/dept")
+        String response = mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isOk())
@@ -121,7 +121,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         updateDto.setEnabled(true);
         updateDto.setOrganizationId(organizationId);
 
-        mockMvc.perform(put("/api/org/dept/{id}", deptId)
+        mockMvc.perform(put("/api/dept/{id}", deptId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
@@ -153,7 +153,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         createDto.setEnabled(true);
         createDto.setOrganizationId(organizationId);
 
-        String response = mockMvc.perform(post("/api/org/dept")
+        String response = mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isOk())
@@ -163,7 +163,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         Long deptId = objectMapper.readTree(response).get("data").asLong();
 
         // 批量删除部门（传入单个ID的列表）
-        mockMvc.perform(delete("/api/org/dept/{ids}", deptId))
+        mockMvc.perform(delete("/api/dept/{ids}", deptId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"));
     }
@@ -193,7 +193,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         createDto.setEnabled(true);
         createDto.setOrganizationId(organizationId);
 
-        String response = mockMvc.perform(post("/api/org/dept")
+        String response = mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isOk())
@@ -203,7 +203,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         Long deptId = objectMapper.readTree(response).get("data").asLong();
 
         // 获取部门详情
-        mockMvc.perform(get("/api/org/dept/{id}", deptId))
+        mockMvc.perform(get("/api/dept/{id}", deptId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
                 .andExpect(jsonPath("$.data").exists());
@@ -212,7 +212,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("分页查询部门 - 成功")
     void testPageDepts_Success() throws Exception {
-        mockMvc.perform(get("/api/org/dept/page")
+        mockMvc.perform(get("/api/dept/page")
                         .param("currentPage", "1")
                         .param("pageSize", "10"))
                 .andExpect(status().isOk())
@@ -238,7 +238,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
         // 从响应中提取组织 ID
         Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
 
-        mockMvc.perform(get("/api/org/dept/options")
+        mockMvc.perform(get("/api/dept/options")
                         .param("organizationId", organizationId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -264,14 +264,14 @@ class DeptControllerTest extends AbstractIntegrationTest {
         Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
 
         // 测试带组织ID参数的查询
-        mockMvc.perform(get("/api/org/dept/list")
+        mockMvc.perform(get("/api/dept/list")
                         .param("organizationId", organizationId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
                 .andExpect(jsonPath("$.data").isArray());
 
         // 测试带关键字和启用状态参数的查询（兼容structure-admin）
-        mockMvc.perform(get("/api/org/dept/list")
+        mockMvc.perform(get("/api/dept/list")
                         .param("keywords", "测试")
                         .param("enabled", "true"))
                 .andExpect(status().isOk())

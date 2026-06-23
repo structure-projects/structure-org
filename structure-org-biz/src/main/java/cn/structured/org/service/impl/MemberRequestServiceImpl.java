@@ -96,7 +96,7 @@ public class MemberRequestServiceImpl implements IMemberRequestService {
         log.debug("开始分页查询成员申请, 查询条件: {}, 分页参数: {}", query, reqPage);
 
         // 构建分页对象
-        Page<MemberRequest> page = new Page<>(reqPage.getCurrentPage(), reqPage.getPageSize());
+        Page<MemberRequest> page = new Page<>(reqPage.getPage(), reqPage.getSize());
 
         // 构建查询条件
         LambdaQueryWrapper<MemberRequest> queryWrapper = Wrappers.<MemberRequest>lambdaQuery()

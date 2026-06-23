@@ -139,7 +139,7 @@ public class InviteLinkServiceImpl implements IInviteLinkService {
         log.debug("开始分页查询当前用户的邀请链接, 查询条件: {}, 分页参数: {}", query, reqPage);
 
         // 构建分页对象
-        Page<InviteLink> page = new Page<>(reqPage.getCurrentPage(), reqPage.getPageSize());
+        Page<InviteLink> page = new Page<>(reqPage.getPage(), reqPage.getSize());
 
         // 构建查询条件
         LambdaQueryWrapper<InviteLink> queryWrapper = Wrappers.<InviteLink>lambdaQuery()
@@ -163,7 +163,7 @@ public class InviteLinkServiceImpl implements IInviteLinkService {
         log.debug("开始分页查询邀请链接, 查询条件: {}, 分页参数: {}", query, reqPage);
 
         // 构建分页对象
-        Page<InviteLink> page = new Page<>(reqPage.getCurrentPage(), reqPage.getPageSize());
+        Page<InviteLink> page = new Page<>(reqPage.getPage(), reqPage.getSize());
 
         // 构建查询条件
         LambdaQueryWrapper<InviteLink> queryWrapper = Wrappers.<InviteLink>lambdaQuery()

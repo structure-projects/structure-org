@@ -9,7 +9,10 @@ import cn.structured.org.dto.MemberRequestDTO;
 import cn.structured.org.dto.OrganizationDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
@@ -39,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Import(TestConfig.class)
 @DisplayName("成员邀请功能集成测试")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MemberRequestControllerTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -54,6 +58,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     // ==================== 1. 基础数据准备 ====================
 
     @Test
+    @Order(1)
     @DisplayName("01_创建测试组织")
     void test01_CreateTestOrganization() throws Exception {
         OrganizationDTO orgDto = new OrganizationDTO();
@@ -76,6 +81,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     // ==================== 2. 手机号格式验证测试 ====================
 
     @Test
+    @Order(2)
     @DisplayName("02_邀请失败_手机号格式错误_少于11位")
     void test02_InviteFail_PhoneTooShort() throws Exception {
         MemberInviteDTO dto = new MemberInviteDTO();
@@ -90,6 +96,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(3)
     @DisplayName("03_邀请失败_手机号格式错误_多于11位")
     void test03_InviteFail_PhoneTooLong() throws Exception {
         MemberInviteDTO dto = new MemberInviteDTO();
@@ -104,6 +111,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(4)
     @DisplayName("04_邀请失败_手机号格式错误_以1开头但第二位不对")
     void test04_InviteFail_PhoneSecondDigitInvalid() throws Exception {
         MemberInviteDTO dto = new MemberInviteDTO();
@@ -118,6 +126,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(5)
     @DisplayName("05_邀请失败_手机号格式错误_包含字母")
     void test05_InviteFail_PhoneContainsLetters() throws Exception {
         MemberInviteDTO dto = new MemberInviteDTO();
@@ -132,6 +141,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(6)
     @DisplayName("06_邀请失败_手机号列表为空")
     void test06_InviteFail_EmptyPhoneList() throws Exception {
         MemberInviteDTO dto = new MemberInviteDTO();
@@ -148,6 +158,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     // ==================== 3. 正常邀请流程测试 ====================
 
     @Test
+    @Order(7)
     @DisplayName("07_邀请成功_单个手机号")
     void test07_InviteSuccess_SinglePhone() throws Exception {
         MemberInviteDTO dto = new MemberInviteDTO();
@@ -167,14 +178,14 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        List<?> dataList = objectMapper.readTree(response).findValues("data");
-        inviteId = objectMapper.readTree(dataList.get(0).toString()).get("id").asLong();
-        inviteCode = objectMapper.readTree(dataList.get(0).toString()).get("inviteCode").asText();
+        inviteId = objectMapper.readTree(response).get("data").get(0).get("id").asLong();
+        inviteCode = objectMapper.readTree(response).get("data").get(0).get("inviteCode").asText();
 
         System.out.println("邀请成功, inviteId: " + inviteId + ", inviteCode: " + inviteCode);
     }
 
     @Test
+    @Order(8)
     @DisplayName("08_邀请成功_批量手机号")
     void test08_InviteSuccess_BatchPhones() throws Exception {
         MemberInviteDTO dto = new MemberInviteDTO();
@@ -192,6 +203,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(9)
     @DisplayName("09_邀请成功_无手机号列表")
     void test09_InviteSuccess_EmptyPhones() throws Exception {
         MemberInviteDTO dto = new MemberInviteDTO();
@@ -208,6 +220,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     // ==================== 4. 邀请查询测试 ====================
 
     @Test
+    @Order(10)
     @DisplayName("10_根据ID查询邀请记录_成功")
     void test10_GetInviteById_Success() throws Exception {
         mockMvc.perform(get("/api/member-invite/" + inviteId))
@@ -219,6 +232,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(11)
     @DisplayName("11_根据邀请码查询邀请记录_成功")
     void test11_GetInviteByCode_Success() throws Exception {
         mockMvc.perform(get("/api/member-invite/code/" + inviteCode))
@@ -228,6 +242,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(12)
     @DisplayName("12_根据邀请码查询邀请记录_失败_邀请码不存在")
     void test12_GetInviteByCode_NotFound() throws Exception {
         mockMvc.perform(get("/api/member-invite/code/non_existent_code"))
@@ -238,6 +253,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     // ==================== 5. 确认加入流程测试 ====================
 
     @Test
+    @Order(13)
     @DisplayName("13_确认加入_失败_手机号与邀请不匹配")
     void test13_ConfirmFail_PhoneMismatch() throws Exception {
         MemberInviteConfirmDTO dto = new MemberInviteConfirmDTO();
@@ -255,6 +271,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(14)
     @DisplayName("14_确认加入_失败_邀请码错误")
     void test14_ConfirmFail_WrongCode() throws Exception {
         MemberInviteConfirmDTO dto = new MemberInviteConfirmDTO();
@@ -272,6 +289,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(15)
     @DisplayName("15_确认加入_失败_邀请记录不存在")
     void test15_ConfirmFail_InviteNotFound() throws Exception {
         MemberInviteConfirmDTO dto = new MemberInviteConfirmDTO();
@@ -289,6 +307,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(16)
     @DisplayName("16_确认加入_成功_用户成为正式成员")
     void test16_ConfirmSuccess_MemberCreated() throws Exception {
         MemberInviteConfirmDTO dto = new MemberInviteConfirmDTO();
@@ -315,6 +334,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     // ==================== 6. 取消邀请测试 ====================
 
     @Test
+    @Order(17)
     @DisplayName("17_取消邀请_成功")
     void test17_CancelInvite_Success() throws Exception {
         // 先创建一个新的邀请
@@ -329,8 +349,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        List<?> dataList = objectMapper.readTree(response).findValues("data");
-        Long cancelInviteId = objectMapper.readTree(dataList.get(0).toString()).get("id").asLong();
+        Long cancelInviteId = objectMapper.readTree(response).get("data").get(0).get("id").asLong();
 
         // 取消邀请
         mockMvc.perform(put("/api/member-invite/" + cancelInviteId + "/cancel"))
@@ -344,6 +363,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(18)
     @DisplayName("18_取消邀请_失败_邀请已接收不能取消")
     void test18_CancelInvite_Fail_AlreadyAccepted() throws Exception {
         // 尝试取消已接收的邀请
@@ -355,6 +375,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     // ==================== 7. 成员申请原有功能测试 ====================
 
     @Test
+    @Order(19)
     @DisplayName("19_创建申请_成功")
     void test19_CreateMemberRequest_Success() throws Exception {
         MemberRequestDTO dto = new MemberRequestDTO();
@@ -375,6 +396,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(20)
     @DisplayName("20_审核申请_通过")
     void test20_AuditMemberRequest_Approve() throws Exception {
         // 创建一个申请
@@ -408,6 +430,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Order(21)
     @DisplayName("21_分页查询申请_成功")
     void test21_PageMemberRequests_Success() throws Exception {
         mockMvc.perform(get("/api/member-request/page")

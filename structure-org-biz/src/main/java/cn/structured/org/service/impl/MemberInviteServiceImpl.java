@@ -19,6 +19,8 @@ import cn.structured.org.manager.IMemberManager;
 import cn.structured.org.manager.IOrganizationManager;
 import cn.structured.org.service.IMemberInviteService;
 import cn.structured.org.vo.MemberInviteVO;
+import cn.structured.security.context.UserContext;
+import cn.structured.security.entity.UserContextEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +88,8 @@ public class MemberInviteServiceImpl implements IMemberInviteService {
             invite.setOrganizationName(organization.getName());
             invite.setDeptId(deptId);
             invite.setDeptName(deptName);
-            invite.setInviteUserId(null); // TODO: 从SecurityContext获取
+            UserContextEntity userContextEntity = UserContext.get();
+            invite.setInviteUserId(Long.parseLong(userContextEntity.getUserId())); // TODO: 从SecurityContext获取
             invite.setInviteUserName(null); // TODO: 从SecurityContext获取
             invite.setInvitePhone(phone);
             invite.setInviteCode(inviteCode);

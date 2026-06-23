@@ -63,7 +63,7 @@ public class MemberServiceImpl implements IMemberService {
     @Override
     public ResPage<MemberVO> page(MemberQuery query, ReqPage reqPage) {
         log.info("查询成员列表, 查询参数: {}", query);
-        Page<Member> page = new Page<>(reqPage.getCurrentPage(), reqPage.getPageSize());
+        Page<Member> page = new Page<>(reqPage.getPage(), reqPage.getSize());
 
         // 构建查询条件
         LambdaQueryWrapper<Member> queryWrapper = Wrappers.<Member>lambdaQuery()
