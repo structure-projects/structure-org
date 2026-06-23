@@ -121,12 +121,12 @@ public class MemberInviteServiceImpl implements IMemberInviteService {
 
         // 验证邀请码
         if (!inviteCode.equals(invite.getInviteCode())) {
-            throw new OrgException("INVITE_CODE_ERROR", "邀请码错误");
+            throw new OrgException(OrgExceptionEnum.INVITE_CODE_ERROR);
         }
 
         // 验证邀请状态
         if (invite.getState() != MemberInviteStateEnum.PENDING.getCode()) {
-            throw new OrgException("INVITE_STATE_ERROR", "邀请状态不允许确认");
+            throw new OrgException(OrgExceptionEnum.INVITE_STATE_ERROR);
         }
 
         // 验证是否过期
@@ -138,7 +138,7 @@ public class MemberInviteServiceImpl implements IMemberInviteService {
 
         // 验证手机号格式（被邀请人手机号必须与邀请时填写的手机号一致）
         if (!dto.getPhone().equals(invite.getInvitePhone())) {
-            throw new OrgException("PHONE_MISMATCH", "手机号与邀请接收人不匹配");
+            throw new OrgException(OrgExceptionEnum.PHONE_MISMATCH);
         }
 
         // 更新邀请状态为已接收
@@ -170,7 +170,7 @@ public class MemberInviteServiceImpl implements IMemberInviteService {
     @Override
     public MemberInviteVO findByInviteCode(String inviteCode) {
         if (StrUtil.isBlank(inviteCode)) {
-            throw new OrgException("INVITE_CODE_EMPTY", "邀请码不能为空");
+            throw new OrgException(OrgExceptionEnum.INVITE_CODE_EMPTY);
         }
         LambdaQueryWrapper<MemberInvite> queryWrapper = Wrappers.<MemberInvite>lambdaQuery()
                 .eq(MemberInvite::getInviteCode, inviteCode);
@@ -189,7 +189,7 @@ public class MemberInviteServiceImpl implements IMemberInviteService {
             throw new OrgException(OrgExceptionEnum.MEMBER_REQUEST_NOT_FOUND);
         }
         if (invite.getState() != MemberInviteStateEnum.PENDING.getCode()) {
-            throw new OrgException("INVITE_STATE_ERROR", "只有待接收状态的邀请才能取消");
+            throw new OrgException(OrgExceptionEnum.INVITE_STATE_ERROR);
         }
         invite.setState(MemberInviteStateEnum.CANCELLED.getCode());
         memberInviteManager.updateById(invite);

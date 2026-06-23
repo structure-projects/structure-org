@@ -90,7 +90,7 @@ class InviteLinkControllerTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("ORG_001"));
+                .andExpect(jsonPath("$.code").value("110501"));
     }
 
     @Test
@@ -135,7 +135,7 @@ class InviteLinkControllerTest extends AbstractIntegrationTest {
     void testGetInviteLinkByCode_Fail_NotFound() throws Exception {
         mockMvc.perform(get("/api/invite-link/code/{inviteCode}", "non_existent_code"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("ORG_401"));
+                .andExpect(jsonPath("$.code").value("110541"));
     }
 
     @Test

@@ -247,7 +247,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
     void test12_GetInviteByCode_NotFound() throws Exception {
         mockMvc.perform(get("/api/member-invite/code/non_existent_code"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("ORG_301")); // MEMBER_REQUEST_NOT_FOUND
+                .andExpect(jsonPath("$.code").value("110531")); // MEMBER_REQUEST_NOT_FOUND
     }
 
     // ==================== 5. 确认加入流程测试 ====================
@@ -267,7 +267,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("PHONE_MISMATCH"));
+                .andExpect(jsonPath("$.code").value("110547"));
     }
 
     @Test
@@ -285,7 +285,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("INVITE_CODE_ERROR"));
+                .andExpect(jsonPath("$.code").value("110545"));
     }
 
     @Test
@@ -303,7 +303,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("ORG_301"));
+                .andExpect(jsonPath("$.code").value("110531"));
     }
 
     @Test
@@ -369,7 +369,7 @@ class MemberRequestControllerTest extends AbstractIntegrationTest {
         // 尝试取消已接收的邀请
         mockMvc.perform(put("/api/member-invite/" + inviteId + "/cancel"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("INVITE_STATE_ERROR"));
+                .andExpect(jsonPath("$.code").value("110546"));
     }
 
     // ==================== 7. 成员申请原有功能测试 ====================

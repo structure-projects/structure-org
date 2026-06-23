@@ -2,9 +2,9 @@
 
 ## 📅 文档信息
 
-- **版本**: 1.0.0
+- **版本**: 1.1.0
 - **创建日期**: 2026-06-16
-- **最后更新**: 2026-06-16
+- **最后更新**: 2026-06-23
 
 ## 📁 项目结构规范
 
@@ -144,7 +144,7 @@ if (dept == null) {
     throw new OrgException(OrgExceptionEnum.DEPT_NOT_FOUND);
 }
 
-throw new OrgException("VALIDATION_ERROR", "部门名称不能为空");
+throw new OrgException(OrgExceptionEnum.VALIDATION_ERROR);
 ```
 
 ---

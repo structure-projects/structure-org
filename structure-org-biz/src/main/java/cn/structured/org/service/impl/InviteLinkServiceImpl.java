@@ -121,7 +121,7 @@ public class InviteLinkServiceImpl implements IInviteLinkService {
     @Override
     public InviteLinkVO findByInviteCode(String inviteCode) {
         if (StrUtil.isBlank(inviteCode)) {
-            throw new OrgException("INVITE_CODE_EMPTY", "邀请码不能为空");
+            throw new OrgException(OrgExceptionEnum.INVITE_CODE_EMPTY);
         }
         LambdaQueryWrapper<InviteLink> queryWrapper = Wrappers.<InviteLink>lambdaQuery()
                 .eq(InviteLink::getInviteCode, inviteCode);
