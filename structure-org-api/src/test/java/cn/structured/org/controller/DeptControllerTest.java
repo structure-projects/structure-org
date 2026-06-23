@@ -11,7 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,7 +48,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         String orgResponse = mockMvc.perform(post("/api/organization")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(orgDto)))
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -59,7 +64,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
                 .andExpect(jsonPath("$.data").isString());
@@ -73,7 +79,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("VERIFICATION_FAILED"))
                 .andExpect(jsonPath("$.success").value(false));
@@ -90,7 +97,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         String orgResponse = mockMvc.perform(post("/api/organization")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(orgDto)))
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -106,7 +114,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         String response = mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -123,7 +132,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         mockMvc.perform(put("/api/dept/{id}", deptId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+                        .content(objectMapper.writeValueAsString(updateDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:edit")))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"));
     }
@@ -139,7 +149,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         String orgResponse = mockMvc.perform(post("/api/organization")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(orgDto)))
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -155,7 +166,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         String response = mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -163,7 +175,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
         Long deptId = objectMapper.readTree(response).get("data").asLong();
 
         // 批量删除部门（传入单个ID的列表）
-        mockMvc.perform(delete("/api/dept/{ids}", deptId))
+        mockMvc.perform(delete("/api/dept/{ids}", deptId)
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:del")))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"));
     }
@@ -179,7 +192,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         String orgResponse = mockMvc.perform(post("/api/organization")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(orgDto)))
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -195,7 +209,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         String response = mockMvc.perform(post("/api/dept")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -203,7 +218,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
         Long deptId = objectMapper.readTree(response).get("data").asLong();
 
         // 获取部门详情
-        mockMvc.perform(get("/api/dept/{id}", deptId))
+        mockMvc.perform(get("/api/dept/{id}", deptId)
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept")))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
                 .andExpect(jsonPath("$.data").exists());
@@ -214,7 +230,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
     void testPageDepts_Success() throws Exception {
         mockMvc.perform(get("/api/dept/page")
                         .param("currentPage", "1")
-                        .param("pageSize", "10"))
+                        .param("pageSize", "10")
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept")))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
                 .andExpect(jsonPath("$.data").exists());
@@ -256,7 +273,8 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         String orgResponse = mockMvc.perform(post("/api/organization")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(orgDto)))
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -265,6 +283,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         // 测试带组织ID参数的查询
         mockMvc.perform(get("/api/dept/list")
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept"))))
                         .param("organizationId", organizationId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -272,6 +291,7 @@ class DeptControllerTest extends AbstractIntegrationTest {
 
         // 测试带关键字和启用状态参数的查询（兼容structure-admin）
         mockMvc.perform(get("/api/dept/list")
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept"))))
                         .param("keywords", "测试")
                         .param("enabled", "true"))
                 .andExpect(status().isOk())

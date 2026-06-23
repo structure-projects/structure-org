@@ -89,8 +89,10 @@ public class MemberInviteServiceImpl implements IMemberInviteService {
             invite.setDeptId(deptId);
             invite.setDeptName(deptName);
             UserContextEntity userContextEntity = UserContext.get();
-            invite.setInviteUserId(Long.parseLong(userContextEntity.getUserId())); // TODO: 从SecurityContext获取
-            invite.setInviteUserName(null); // TODO: 从SecurityContext获取
+            if (null != userContextEntity) {
+                invite.setInviteUserId(Long.parseLong(userContextEntity.getUserId())); // TODO: 从SecurityContext获取
+                invite.setInviteUserName(null); // TODO: 从SecurityContext获取
+            }
             invite.setInvitePhone(phone);
             invite.setInviteCode(inviteCode);
             invite.setExpireTime(expireTime);

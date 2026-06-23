@@ -29,6 +29,7 @@ public class DeptAssembler {
         dept.setTreePath(deptDto.getTreePath());
         dept.setSort(deptDto.getSort());
         dept.setEnabled(deptDto.getEnabled());
+        dept.setOrganizationId(deptDto.getOrganizationId());
         return dept;
     }
 }

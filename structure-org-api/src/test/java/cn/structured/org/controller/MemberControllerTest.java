@@ -7,14 +7,18 @@ import cn.structured.org.dto.MemberDTO;
 import cn.structured.org.dto.MemberInviteConfirmDTO;
 import cn.structured.org.dto.MemberInviteDTO;
 import cn.structured.org.dto.OrganizationDTO;
+import cn.structured.org.service.IMemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,8 +43,12 @@ class MemberControllerTest extends AbstractIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private IMemberService memberService;
+
     @Test
     @DisplayName("更新成员 - 成功")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void testUpdateMember_Success() throws Exception {
         // 先创建一个组织
         OrganizationDTO orgDto = new OrganizationDTO();
@@ -56,45 +64,17 @@ class MemberControllerTest extends AbstractIntegrationTest {
 
         Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
 
-        // 通过邀请创建成员
-        MemberInviteDTO inviteDto = new MemberInviteDTO();
-        inviteDto.setOrganizationId(organizationId);
-        inviteDto.setInvitePhones(Arrays.asList("13800138001"));
+        // 通过Service创建成员
+        MemberDTO createDto = new MemberDTO();
+        createDto.setUserId(1L);
+        createDto.setPhone("13800138001");
+        createDto.setName("张三");
+        createDto.setSex("M");
+        createDto.setDeptId(1L);
+        createDto.setState(1);
+        createDto.setOrganizationId(organizationId);
 
-        MvcResult inviteResult = mockMvc.perform(post("/api/member-invite")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(inviteDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andReturn();
-
-        String inviteResponse = inviteResult.getResponse().getContentAsString();
-        List<?> dataList = objectMapper.readTree(inviteResponse).findValues("data");
-        Long inviteId = objectMapper.readTree(dataList.get(0).toString()).get("id").asLong();
-        String inviteCode = objectMapper.readTree(dataList.get(0).toString()).get("inviteCode").asText();
-
-        // 确认邀请
-        MemberInviteConfirmDTO confirmDto = new MemberInviteConfirmDTO();
-        confirmDto.setInviteId(inviteId);
-        confirmDto.setInviteCode(inviteCode);
-        confirmDto.setUserId(1L);
-        confirmDto.setPhone("13800138001");
-        confirmDto.setName("张三");
-
-        mockMvc.perform(post("/api/member-invite/confirm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(confirmDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"));
-
-        // 查询成员ID（通过手机号查询）
-        String pageResponse = mockMvc.perform(get("/api/member/page")
-                        .param("phone", "13800138001"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andReturn().getResponse().getContentAsString();
-
-        Long memberId = objectMapper.readTree(pageResponse).get("data").get("list").get(0).get("id").asLong();
+        Long memberId = memberService.create(createDto);
 
         // 更新成员
         MemberDTO updateDto = new MemberDTO();
@@ -115,6 +95,7 @@ class MemberControllerTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("删除成员 - 成功")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void testDeleteMember_Success() throws Exception {
         // 先创建一个组织
         OrganizationDTO orgDto = new OrganizationDTO();
@@ -130,45 +111,17 @@ class MemberControllerTest extends AbstractIntegrationTest {
 
         Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
 
-        // 通过邀请创建成员
-        MemberInviteDTO inviteDto = new MemberInviteDTO();
-        inviteDto.setOrganizationId(organizationId);
-        inviteDto.setInvitePhones(Arrays.asList("13800138003"));
+        // 通过Service创建成员
+        MemberDTO createDto = new MemberDTO();
+        createDto.setUserId(1L);
+        createDto.setPhone("13800138003");
+        createDto.setName("待删除成员");
+        createDto.setSex("M");
+        createDto.setDeptId(1L);
+        createDto.setState(1);
+        createDto.setOrganizationId(organizationId);
 
-        MvcResult inviteResult = mockMvc.perform(post("/api/member-invite")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(inviteDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andReturn();
-
-        String inviteResponse = inviteResult.getResponse().getContentAsString();
-        List<?> dataList = objectMapper.readTree(inviteResponse).findValues("data");
-        Long inviteId = objectMapper.readTree(dataList.get(0).toString()).get("id").asLong();
-        String inviteCode = objectMapper.readTree(dataList.get(0).toString()).get("inviteCode").asText();
-
-        // 确认邀请
-        MemberInviteConfirmDTO confirmDto = new MemberInviteConfirmDTO();
-        confirmDto.setInviteId(inviteId);
-        confirmDto.setInviteCode(inviteCode);
-        confirmDto.setUserId(1L);
-        confirmDto.setPhone("13800138003");
-        confirmDto.setName("待删除成员");
-
-        mockMvc.perform(post("/api/member-invite/confirm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(confirmDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"));
-
-        // 查询成员ID
-        String pageResponse = mockMvc.perform(get("/api/member/page")
-                        .param("phone", "13800138003"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andReturn().getResponse().getContentAsString();
-
-        Long memberId = objectMapper.readTree(pageResponse).get("data").get("list").get(0).get("id").asLong();
+        Long memberId = memberService.create(createDto);
 
         // 删除成员
         mockMvc.perform(delete("/api/member/{id}", memberId))
@@ -178,6 +131,7 @@ class MemberControllerTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("获取成员详情 - 成功")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void testGetMemberById_Success() throws Exception {
         // 先创建一个组织
         OrganizationDTO orgDto = new OrganizationDTO();
@@ -193,45 +147,17 @@ class MemberControllerTest extends AbstractIntegrationTest {
 
         Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
 
-        // 通过邀请创建成员
-        MemberInviteDTO inviteDto = new MemberInviteDTO();
-        inviteDto.setOrganizationId(organizationId);
-        inviteDto.setInvitePhones(Arrays.asList("13800138004"));
+        // 通过Service创建成员
+        MemberDTO createDto = new MemberDTO();
+        createDto.setUserId(1L);
+        createDto.setPhone("13800138004");
+        createDto.setName("测试成员详情");
+        createDto.setSex("M");
+        createDto.setDeptId(1L);
+        createDto.setState(1);
+        createDto.setOrganizationId(organizationId);
 
-        MvcResult inviteResult = mockMvc.perform(post("/api/member-invite")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(inviteDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andReturn();
-
-        String inviteResponse = inviteResult.getResponse().getContentAsString();
-        List<?> dataList = objectMapper.readTree(inviteResponse).findValues("data");
-        Long inviteId = objectMapper.readTree(dataList.get(0).toString()).get("id").asLong();
-        String inviteCode = objectMapper.readTree(dataList.get(0).toString()).get("inviteCode").asText();
-
-        // 确认邀请
-        MemberInviteConfirmDTO confirmDto = new MemberInviteConfirmDTO();
-        confirmDto.setInviteId(inviteId);
-        confirmDto.setInviteCode(inviteCode);
-        confirmDto.setUserId(1L);
-        confirmDto.setPhone("13800138004");
-        confirmDto.setName("测试成员详情");
-
-        mockMvc.perform(post("/api/member-invite/confirm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(confirmDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"));
-
-        // 查询成员ID
-        String pageResponse = mockMvc.perform(get("/api/member/page")
-                        .param("phone", "13800138004"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andReturn().getResponse().getContentAsString();
-
-        Long memberId = objectMapper.readTree(pageResponse).get("data").get("list").get(0).get("id").asLong();
+        Long memberId = memberService.create(createDto);
 
         // 获取成员详情
         mockMvc.perform(get("/api/member/{id}", memberId))
