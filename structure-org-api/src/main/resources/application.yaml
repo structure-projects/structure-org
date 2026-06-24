@@ -46,6 +46,8 @@ spring:
   config:
     activate:
       on-profile: dev
+    import:
+      - optional:classpath:${spring.application.name}.yaml
 ---
 spring:
   config:
