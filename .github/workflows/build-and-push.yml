@@ -1,6 +1,8 @@
 name: Build and Push to Aliyun
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       version:
@@ -56,5 +58,5 @@ jobs:
           context: ./structure-org-api
           push: true
           tags: |
-            registry.cn-hangzhou.aliyuncs.com/yunjida/org-server:${{ env.RELEASE_VERSION }}
-            registry.cn-hangzhou.aliyuncs.com/yunjida/org-server:latest
+            registry.cn-hangzhou.aliyuncs.com/structured/org-server:${{ env.RELEASE_VERSION }}
+            registry.cn-hangzhou.aliyuncs.com/structured/org-server:latest
