@@ -35,8 +35,8 @@
 
     <modules>
         <module>../structure-org-common</module>
-        <module>../structure-org-api</module>
         <module>../structure-org-biz</module>
+        <module>../structure-org-api</module>
     </modules>
 
     <dependencyManagement>

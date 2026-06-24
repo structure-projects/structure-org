@@ -50,7 +50,7 @@ jobs:
           username: ${{ secrets.ALIYUN_ACR_USERNAME }}
           password: ${{ secrets.ALIYUN_ACR_PASSWORD }}
 
-      - name: Build and push structure-oauth-server-boot Docker image of huangzhou
+      - name: Build and push Docker image of huangzhou
         uses: docker/build-push-action@v5
         with:
           context: ./structure-org-api

@@ -148,6 +148,21 @@
 
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>release</id>
+            <properties>
+                <maven.deploy.skip>true</maven.deploy.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>oss</id>
+            <properties>
+                <maven.deploy.skip>true</maven.deploy.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <finalName>org-server</finalName>
         <resources>
