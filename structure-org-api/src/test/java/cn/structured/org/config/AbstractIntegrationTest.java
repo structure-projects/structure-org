@@ -1,11 +1,10 @@
 package cn.structured.org.config;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 测试基类
@@ -27,5 +26,7 @@ import java.util.Map;
                 "spring.cloud.nacos.config.enabled=false"
         })
 @ActiveProfiles("test")
+@ContextConfiguration(initializers = TestDatabaseInitializer.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class AbstractIntegrationTest {
 }
