@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>structure-org-dependencies</artifactId>
+        <groupId>cn.structured</groupId>
+        <version>${revision}</version>
+        <relativePath>../structure-org-dependencies/pom.xml</relativePath>
+    </parent>
+
+    <name>structure-org-biz</name>
+    <artifactId>structure-org-biz</artifactId>
+    <description>组织架构业务模块</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>cn.structured</groupId>
+            <artifactId>structure-org-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.structured</groupId>
+            <artifactId>structure-mybatis-plus-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.structured</groupId>
+            <artifactId>structure-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.structured</groupId>
+            <artifactId>structure-security-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

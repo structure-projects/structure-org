@@ -1,0 +1,301 @@
+package cn.structured.org.controller;
+
+import cn.structured.org.config.AbstractIntegrationTest;
+import cn.structured.org.config.TestConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cn.structured.org.dto.DeptDTO;
+import cn.structured.org.dto.OrganizationDTO;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+/**
+ * 部门管理控制器测试
+ *
+ * @author chuck
+ * @since 2024-01-01
+ */
+@AutoConfigureMockMvc
+@Import(TestConfig.class)
+@DisplayName("部门管理接口测试")
+class DeptControllerTest extends AbstractIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    @DisplayName("创建部门 - 成功")
+    void testCreateDept_Success() throws Exception {
+        // 先创建一个组织
+        OrganizationDTO orgDto = new OrganizationDTO();
+        orgDto.setName("测试组织");
+        orgDto.setCode("TEST_ORG_CREATE");
+        orgDto.setState(1);
+
+        String orgResponse = mockMvc.perform(post("/api/organization")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
+
+        DeptDTO dto = new DeptDTO();
+        dto.setName("测试部门");
+        dto.setParentId(0L);
+        dto.setSort(1);
+        dto.setEnabled(true);
+        dto.setOrganizationId(organizationId);
+
+        mockMvc.perform(post("/api/dept")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isString());
+    }
+
+    @Test
+    @DisplayName("创建部门 - 失败（缺少必填字段）")
+    void testCreateDept_Fail_MissingRequiredField() throws Exception {
+        DeptDTO dto = new DeptDTO();
+        // 不设置 name 和 organizationId，应该校验失败
+
+        mockMvc.perform(post("/api/dept")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("VERIFICATION_FAILED"))
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("更新部门 - 成功")
+    void testUpdateDept_Success() throws Exception {
+        // 先创建一个组织
+        OrganizationDTO orgDto = new OrganizationDTO();
+        orgDto.setName("测试组织");
+        orgDto.setCode("TEST_ORG_UPDATE");
+        orgDto.setState(1);
+
+        String orgResponse = mockMvc.perform(post("/api/organization")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
+
+        // 先创建一个部门
+        DeptDTO createDto = new DeptDTO();
+        createDto.setName("测试部门");
+        createDto.setParentId(0L);
+        createDto.setSort(1);
+        createDto.setEnabled(true);
+        createDto.setOrganizationId(organizationId);
+
+        String response = mockMvc.perform(post("/api/dept")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        // 从响应中提取 ID
+        Long deptId = objectMapper.readTree(response).get("data").asLong();
+
+        // 更新部门
+        DeptDTO updateDto = new DeptDTO();
+        updateDto.setName("更新后的部门");
+        updateDto.setParentId(0L);
+        updateDto.setSort(2);
+        updateDto.setEnabled(true);
+        updateDto.setOrganizationId(organizationId);
+
+        mockMvc.perform(put("/api/dept/{id}", deptId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:edit")))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"));
+    }
+
+    @Test
+    @DisplayName("批量删除部门 - 成功")
+    void testDeleteDept_Success() throws Exception {
+        // 先创建一个组织
+        OrganizationDTO orgDto = new OrganizationDTO();
+        orgDto.setName("测试组织");
+        orgDto.setCode("TEST_ORG_DELETE");
+        orgDto.setState(1);
+
+        String orgResponse = mockMvc.perform(post("/api/organization")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
+
+        // 先创建一个部门
+        DeptDTO createDto = new DeptDTO();
+        createDto.setName("待删除的测试部门");
+        createDto.setParentId(0L);
+        createDto.setSort(1);
+        createDto.setEnabled(true);
+        createDto.setOrganizationId(organizationId);
+
+        String response = mockMvc.perform(post("/api/dept")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        // 从响应中提取 ID
+        Long deptId = objectMapper.readTree(response).get("data").asLong();
+
+        // 批量删除部门（传入单个ID的列表）
+        mockMvc.perform(delete("/api/dept/{ids}", deptId)
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:del")))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"));
+    }
+
+    @Test
+    @DisplayName("获取部门详情 - 成功")
+    void testGetDeptById_Success() throws Exception {
+        // 先创建一个组织
+        OrganizationDTO orgDto = new OrganizationDTO();
+        orgDto.setName("测试组织");
+        orgDto.setCode("TEST_ORG_GET");
+        orgDto.setState(1);
+
+        String orgResponse = mockMvc.perform(post("/api/organization")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
+
+        // 先创建一个部门
+        DeptDTO createDto = new DeptDTO();
+        createDto.setName("测试部门详情");
+        createDto.setParentId(0L);
+        createDto.setSort(1);
+        createDto.setEnabled(true);
+        createDto.setOrganizationId(organizationId);
+
+        String response = mockMvc.perform(post("/api/dept")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept:add")))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        // 从响应中提取 ID
+        Long deptId = objectMapper.readTree(response).get("data").asLong();
+
+        // 获取部门详情
+        mockMvc.perform(get("/api/dept/{id}", deptId)
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept")))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").exists());
+    }
+
+    @Test
+    @DisplayName("分页查询部门 - 成功")
+    void testPageDepts_Success() throws Exception {
+        mockMvc.perform(get("/api/dept/page")
+                        .param("currentPage", "1")
+                        .param("pageSize", "10")
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept")))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").exists());
+    }
+
+    @Test
+    @DisplayName("获取部门下拉选 - 成功")
+    void testGetDeptOptions_Success() throws Exception {
+        // 先创建一个组织
+        OrganizationDTO orgDto = new OrganizationDTO();
+        orgDto.setName("测试组织");
+        orgDto.setCode("TEST_ORG_OPTIONS");
+        orgDto.setState(1);
+
+        String orgResponse = mockMvc.perform(post("/api/organization")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orgDto)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        // 从响应中提取组织 ID
+        Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
+
+        mockMvc.perform(get("/api/dept/options")
+                        .param("organizationId", organizationId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isArray());
+    }
+
+    @Test
+    @DisplayName("获取部门列表 - 成功")
+    void testGetDeptList_Success() throws Exception {
+        // 先创建一个组织
+        OrganizationDTO orgDto = new OrganizationDTO();
+        orgDto.setName("测试组织");
+        orgDto.setCode("TEST_ORG_LIST");
+        orgDto.setState(1);
+
+        String orgResponse = mockMvc.perform(post("/api/organization")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orgDto))
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:organization:add")))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        // 从响应中提取组织 ID
+        Long organizationId = objectMapper.readTree(orgResponse).get("data").asLong();
+
+        // 测试带组织ID参数的查询
+        mockMvc.perform(get("/api/dept/list")
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept"))))
+                        .param("organizationId", organizationId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isArray());
+
+        // 测试带关键字和启用状态参数的查询（兼容structure-admin）
+        mockMvc.perform(get("/api/dept/list")
+                        .with(SecurityMockMvcRequestPostProcessors.user("test").authorities(Arrays.asList(new SimpleGrantedAuthority("org:dept"))))
+                        .param("keywords", "测试")
+                        .param("enabled", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isArray());
+    }
+}
